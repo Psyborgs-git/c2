@@ -1,0 +1,16 @@
+name: Build and Deploy
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+env:
+  NODE_ENV: production
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build & Deploy React app to GitHub Pages
+        uses: MrKrishnaAgarwal/deploy-react-app-to-gh-pages@v1.0.0
