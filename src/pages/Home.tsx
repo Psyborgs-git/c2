@@ -1,14 +1,18 @@
 import { StarBorder } from '@mui/icons-material';
-import { Box, Container, Grid, IconButton, ImageList, ImageListItem, ImageListItemBar, ImageListItemProps, ImageListProps, Skeleton, Stack, Typography, keyframes, useMediaQuery } from '@mui/material';
+import { Box, Button, Container, Grid, IconButton, ImageList, ImageListItem, ImageListItemBar, ImageListItemProps, ImageListProps, Skeleton, Stack, Typography, keyframes, useMediaQuery } from '@mui/material';
 import React from 'react';
 import fadeIn from '../animations/fadeIn';
+import { useLazyLoadQuery } from 'react-relay';
+import { HomeQuery } from './__generated__/HomeQuery.graphql';
+import { useNavigate } from 'react-router-dom';
+const graphql = require('babel-plugin-relay/macro');
 
 interface HomeProps {
 
 }
 
 interface HomeState {
-
+    category?: string;
 }
 
 const itemData = [
@@ -72,36 +76,44 @@ const itemData = [
     },
 ];
 
-function srcset(image: string, size: number, rows = 1, cols = 1) {
-    return {
-        src: `${image}?w=${size * cols}&h=${size * rows}&fit=crop&auto=format`,
-        srcSet: `${image}?w=${size * cols}&h=${size * rows
-            }&fit=crop&auto=format&dpr=2 2x`,
-    };
-}
-
 
 
 class Home extends React.Component<HomeProps, HomeState> {
 
     constructor(props: HomeProps) {
         super(props);
-        this.state = {};
+        this.state = {
+
+        };
     }
 
-    _image_list_item = ({ item, index }: { item: any, index: number }) => {
+    _image_list_item = ({ item, index }: {
+        item: {
+            id?: string;
+            img: string;
+            title: string;
+            rows?: number;
+            cols?: number;
+            onClick?: () => void;
+        }, index: number
+    }) => {
 
         return (
-            <ImageListItem key={item.img} cols={item.cols || 1} rows={item.rows || 1}
+            <ImageListItem
+                key={item.id}
+                cols={item.cols || 1}
+                rows={item.rows || 1}
                 sx={{
                     animation: `${fadeIn} 1s ease-in-out both`,
                     animationDelay: `${index * 200}ms`,
+                    bgcolor: "background.neutral",
                 }}
+                onClick={item.onClick}
             >
                 <img
-                    {...srcset(item.img, 121, item.rows, item.cols)}
+                    src={item.img}
                     alt={item.title}
-                    loading="lazy"
+                // loading="lazy"
                 />
                 <ImageListItemBar
                     sx={{
@@ -135,8 +147,8 @@ class Home extends React.Component<HomeProps, HomeState> {
                         (_, index) => {
                             return (
                                 <ImageListItem
-                                    cols={3 - (index % 3)}
-                                    rows={2 - (index % 3)}
+                                    cols={(index % 3)}
+                                    rows={(index % 3)}
                                 >
                                     <Skeleton
                                         variant="rounded"
@@ -168,11 +180,9 @@ class Home extends React.Component<HomeProps, HomeState> {
                     (
                         <ImageListItem
                             cols={dims ? 8 : 4}
-                            rows={0.5}
+                            rows={1}
                             sx={{
-                                bgcolor: "background.neutral",
                                 p: "0.5rem",
-                                borderRadius: "0.5rem",
                                 alignItems: "center",
                                 mb: "1rem",
                             }}
@@ -188,28 +198,131 @@ class Home extends React.Component<HomeProps, HomeState> {
 
     RenderData = () => {
         const { List, _image_list_item } = this;
+        const { category } = this.state;
+        const data = useLazyLoadQuery<HomeQuery>(
+            graphql`
+                query HomeQuery ($category: String){
+                        categories
+                        explore(category:$category){
+                            trending{
+                            outfits {
+                                edges {
+                                    node {
+                                        id
+                                        name
+                                        thumbnail{
+                                            id url
+                                        }
+                                    }
+                                }
+                            }
+                            apparel {
+                                edges {
+                                        node {
+                                            id
+                                            name
+                                            thumbnail{
+                                                id url
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                `,
+            { category },
+            { fetchPolicy: "store-or-network" }
+        )
+        const nav = useNavigate();
 
         return (
             <List
                 header={{
                     children: (
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flex: 1,
-                                alignItems: "center",
-                                flexDirection: "row",
-                                justifyContent: "space-evenly",
-                                height: "100%",
-                                fontFamily: "Roboto, sans-serif"
-                            }}>
-                            <Typography variant="h6"  >
-                                Trending Now
-                            </Typography>
-                        </Box>
+                        <>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flex: 1,
+                                    alignItems: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "space-evenly",
+                                    height: "48%",
+                                    my: "1%",
+                                    fontFamily: "Roboto, sans-serif",
+                                    bgcolor: "background.neutral",
+                                    borderRadius: "0.5rem",
+                                }}>
+                                <Typography variant="h6"  >
+                                    Trending Now
+                                </Typography>
+                            </Box>
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flex: 1,
+                                    alignItems: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "space-evenly",
+                                    height: "48%",
+                                    my: "1%",
+                                    py: "0.5rem",
+                                    width: "100%",
+                                    overflowX: "scroll",
+                                    overflowY: "hidden",
+                                    px: 2,
+
+                                    "&::-webkit-scrollbar": {
+                                        display: "none"
+                                    }
+                                }}
+                            >
+                                <Stack direction="row" spacing={2} flex={1} >
+                                    {
+                                        data?.categories?.map(
+                                            (i, x) => (
+                                                <Button
+                                                    sx={{ color: "text", px: "0.5rem", mx: '0.5rem', textTransform: "uppercase", textDecoration: category === i ? "underline" : "none", bgcolor: category === i ? "background.neutral" : "transparent" }}
+                                                    onClick={() => { this.setState({ category: i ?? undefined }) }}
+                                                    variant={"text"}
+                                                    children={i}
+                                                />
+                                            )
+                                        )
+                                    }
+                                </Stack>
+                            </Box>
+                        </>
                     )
                 }}
-                children={itemData.map((i, x) => <_image_list_item item={i} index={x} />)}
+                children={
+                    <>
+                        {
+                            data?.explore?.trending?.apparel?.edges
+                                ?.map(
+                                    (i, x) =>
+                                        <_image_list_item
+                                            item={{
+                                                img: i?.node?.thumbnail?.url ?? "https://images.unsplash.com/photo-1589118949245-7d38baf380d6",
+                                                title: i?.node?.name ?? " - ",
+                                                cols: 2,
+                                                rows: 2,
+                                                onClick: () => {
+                                                    return nav(`/apparel/${i?.node?.id}`)
+                                                }
+                                            }}
+                                            index={x}
+                                        />
+                                )
+                        }
+                        {
+                            itemData.map(
+                                (i, x) => <_image_list_item item={i} index={x} />
+                            )
+                        }
+                    </>
+                }
             />
         )
     }

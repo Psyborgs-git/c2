@@ -111,6 +111,40 @@ type Apparel implements Node {
 	numberOfUses: Int
 	isLiked: Boolean
 	numOfLikes: Int
+	owners(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		handle_Icontains: String
+		isPrivate: Boolean
+		isVerified: Boolean
+	): UserAccountConnection
+	outfits(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		name_Icontains: String
+		description_Icontains: String
+		isPrivate: Boolean
+		createdAt: DateTime
+		createdAt_Lt: DateTime
+		createdAt_Gt: DateTime
+		lastUpdated: DateTime
+		lastUpdated_Lt: DateTime
+		lastUpdated_Gt: DateTime
+		price_Lt: Float
+		price_Gt: Float
+		rent1_Lt: Float
+		rent1_Gt: Float
+		rent7_Lt: Float
+		rent7_Gt: Float
+		rent28_Lt: Float
+		rent28_Gt: Float
+	): OutfitConnection
 }
 
 type ApparelAndOutfitAbs {
@@ -474,6 +508,16 @@ type Outfit implements Node {
 		first: Int
 		last: Int
 	): MediaTypeConnection
+	alsoHas(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		handle_Icontains: String
+		isPrivate: Boolean
+		isVerified: Boolean
+	): UserAccountConnection
 }
 
 type OutfitConnection {
@@ -536,8 +580,8 @@ type ProfilePayload {
 }
 
 type Query {
-	apparel: Apparel
-	outfit: Outfit
+	apparel(id: ID!): Apparel
+	outfit(id: ID!): Outfit
 	userAccount(id: ID, handle: String): UserAccount
 	userAccounts(
 		offset: Int

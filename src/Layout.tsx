@@ -47,7 +47,7 @@ function Main(props: BoxProps) {
         flexDirection: "column",
         overflowY: "scroll",
         overflowX: "hidden",
-        bgcolor: "background.surface",
+        bgcolor: "background.paper",
         borderRadius: "2rem",
         boxShadow: "0 0 0.5rem 0.1rem rgba(0,0,0,0.2)",
 

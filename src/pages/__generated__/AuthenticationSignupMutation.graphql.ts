@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b316728a5dd925653993db19c7c28173>>
+ * @generated SignedSource<<dfbb47e7aa9d4903094c44bc20f24015>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -84,7 +84,7 @@ return {
     "metadata": null,
     "name": "AuthenticationSignupMutation",
     "selections": (v1/*: any*/),
-    "type": "Mutation",
+    "type": "Mutations",
     "abstractKey": null
   },
   "kind": "Request",

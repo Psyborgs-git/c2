@@ -122,7 +122,7 @@ const environment = ({ url, apiToken }: E) => new Environment({
 
 
 const env = environment({
-  url: `${url}/textile/graphql`,
+  url: `${url}/cloudrobe/graphql`,
   apiToken: 'c409e6f36289f6e2323c55180c259f26e21513509364e2e98a82b0b1ac550002'
 });
 ;
