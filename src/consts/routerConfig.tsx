@@ -1,14 +1,15 @@
 import Layout from "../Layout";
 import Apparel from "../pages/Apparel";
 import Authentication from "../pages/Authentication";
-import Clients from "../pages/Clients";
 import Home from "../pages/Home";
 import Outfit from "../pages/Outfit";
+import Client from "../pages/Client";
+import { cloudrobe } from "../relay/environment";
 
 const routes = [
     {
         path: "/",
-        element: <Layout />,
+        element: <Layout env={cloudrobe} />,
         children: [
             {
                 path: "",
@@ -22,16 +23,15 @@ const routes = [
                 path: "outfit/:id",
                 element: <Outfit />,
             },
-            {
-                path: "auth",
-                element: <Authentication />,
-            },
-
         ]
     },
     {
-        path: "clients",
-        element: <Clients />,
+        path: "auth",
+        element: <Authentication />,
+    },
+    {
+        path: "client",
+        element: <Client />,
     }
 ]
 

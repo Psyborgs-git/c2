@@ -1,4 +1,4 @@
-import { Avatar, AvatarGroup, Box, Collapse, Container, IconButton, ImageList, ImageListItem, Stack, Typography } from '@mui/material';
+import { Avatar, AvatarGroup, Box, Container, IconButton, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { useLazyLoadQuery } from 'react-relay';
 import { useParams } from 'react-router-dom';

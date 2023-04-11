@@ -1,0 +1,274 @@
+schema {
+	query: Query
+	mutation: Mutation
+}
+
+type Account implements Node {
+	id: ID!
+	username: String
+	displayName: String
+	bio: String
+	DOB: Date
+	isPrivate: Boolean!
+	verifiedMobileNumber: MobileNumber
+	verifiedEmails(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+	): EmailAddressTypeConnection!
+	profession: String
+	blocked(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+	): AccountConnection!
+	following(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+	): AccountConnection!
+	dp: String
+	music: String
+	cover: String
+	sex: String
+	mutuals(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+	): AccountConnection
+	followers(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+	): AccountConnection
+}
+
+type AccountConnection {
+	pageInfo: PageInfo!
+	edges: [AccountEdge]!
+}
+
+type AccountEdge {
+	node: Account
+	cursor: String!
+}
+
+type ApplicationType implements Node {
+	name: String
+	owners(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+	): AccountConnection!
+	description: String
+	domain: String
+	apiKey: String
+	expires: DateTime
+	id: ID!
+	status: String
+}
+
+type Connection {
+	id: UUID!
+	app: ApplicationType
+	contacts(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		nickname_Icontains: String
+		mobile_Number_Icontains: String
+		name_Icontains: String
+		createdAt_Lt: DateTime
+		createdAt_Gt: DateTime
+	): DetailsConnection!
+	userIsOwner: Boolean
+}
+
+input ConnectionMutationInput {
+	id: ID
+	app: ID
+	contacts: ModifyList
+	clientMutationId: String
+}
+
+type ConnectionMutationPayload {
+	success: Boolean
+	error: String
+	connection: Connection
+	clientMutationId: String
+}
+
+input ContactMutationInput {
+	id: ID
+	numbers: [MobileNumberInput]
+	emails: [String]
+	name: String
+	nickname: String
+	clientMutationId: String
+}
+
+type ContactMutationPayload {
+	success: Boolean
+	error: String
+	contact: Details
+	clientMutationId: String
+}
+
+scalar Date
+
+scalar DateTime
+
+type Details implements Node {
+	createdAt: DateTime!
+	lastUpdated: DateTime!
+	name: String
+	description: String
+	id: ID!
+	nickname: String
+	mobile(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+	): MobileNumberConnection!
+	emails: [String]
+}
+
+type DetailsConnection {
+	pageInfo: PageInfo!
+	edges: [DetailsEdge]!
+}
+
+type DetailsEdge {
+	node: Details
+	cursor: String!
+}
+
+type EmailAddressType implements Node {
+	id: ID!
+	email: String!
+}
+
+type EmailAddressTypeConnection {
+	pageInfo: PageInfo!
+	edges: [EmailAddressTypeEdge]!
+}
+
+type EmailAddressTypeEdge {
+	node: EmailAddressType
+	cursor: String!
+}
+
+type Group {
+	id: UUID!
+	name: String!
+	connection: Connection
+	contacts(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		nickname_Icontains: String
+		mobile_Number_Icontains: String
+		name_Icontains: String
+		createdAt_Lt: DateTime
+		createdAt_Gt: DateTime
+	): DetailsConnection!
+	userIsOwner: Boolean
+}
+
+input GroupMutationInput {
+	id: ID
+	name: String
+	connection: ModifyList
+	contacts: ModifyList
+	clientMutationId: String
+}
+
+type GroupMutationPayload {
+	success: Boolean
+	error: String
+	group: Group
+	clientMutationId: String
+}
+
+type MobileNumber implements Node {
+	id: ID!
+	countryCode: String!
+	number: String!
+}
+
+type MobileNumberConnection {
+	pageInfo: PageInfo!
+	edges: [MobileNumberEdge]!
+}
+
+type MobileNumberEdge {
+	node: MobileNumber
+	cursor: String!
+}
+
+input MobileNumberInput {
+	countryCode: String = "+91"
+	number: String
+}
+
+input ModifyList {
+	add: [ID]
+	remove: [ID]
+}
+
+type Mutation {
+	contact(input: ContactMutationInput!): ContactMutationPayload
+	connection(input: ConnectionMutationInput!): ConnectionMutationPayload
+	group(input: GroupMutationInput!): GroupMutationPayload
+}
+
+interface Node {
+	id: ID!
+}
+
+type PageInfo {
+	hasNextPage: Boolean!
+	hasPreviousPage: Boolean!
+	startCursor: String
+	endCursor: String
+}
+
+type Query {
+	contact(id: ID!): Details
+	group(id: ID!): Group
+	userConnections: [Connection!]
+	userGroups: [Group!]
+	connection: Connection
+	contacts(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		nickname_Icontains: String
+		mobile_Number_Icontains: String
+		name_Icontains: String
+		createdAt_Lt: DateTime
+		createdAt_Gt: DateTime
+	): DetailsConnection
+}
+
+scalar UUID

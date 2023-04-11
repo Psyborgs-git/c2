@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, IconButton, Typography } from '@mui/material';
-import { useNavigate, useNavigation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
 
@@ -8,7 +8,7 @@ interface HeaderProps {
 
 function Header(props: HeaderProps) {
     const nav = useNavigate();
-    const navigation = useNavigation();
+    // const navigation = useNavigation();
     const _handleLogoClick = () => {
         nav("/");
     }
@@ -29,7 +29,7 @@ function Header(props: HeaderProps) {
             }}
         >
             <IconButton onClick={_handleLogoClick} sx={{ ":hover": { scale: "1.05", transition: "scale 0.27ms" } }}>
-                <img src="/logo.svg" height="72px" width="72px" />
+                <img alt=" " src="/logo.svg" height="72px" width="72px" />
             </IconButton>
             <Typography variant="h4" sx={{ fontFamily: "Segoe UI Symbol", display: "flex", alignItems: "center", ml: "1rem" }}>
                 Cloud Drobe

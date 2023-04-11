@@ -2,8 +2,8 @@
 module.exports = {
 	// ...
 	// Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.
-	src: "./src",
+	src: "./src/pages/Client",
 	language: "typescript", // "javascript" | "typescript" | "flow"
-	schema: "./data/schema.graphql",
+	schema: "./data/connections.graphql",
 	exclude: ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
 };

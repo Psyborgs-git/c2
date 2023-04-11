@@ -87,7 +87,7 @@ const palette = {
 	},
 	background: {
 		paper: "#fff",
-		backdrop: "rgba(0, 0, 0, 0.48)",
+		backdrop: "rgba(255,255,255,0.36)",
 		default: GREY[100],
 		neutral: GREY[200],
 	},

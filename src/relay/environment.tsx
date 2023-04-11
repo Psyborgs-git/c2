@@ -111,7 +111,7 @@ interface E {
   apiToken: string;
 };
 
-const environment = ({ url, apiToken }: E) => new Environment({
+const environment = ({ url, apiToken }: E): Environment => new Environment({
   network: new RelayNetworkLayer(
     middlewares(url, apiToken),
     {}
@@ -120,11 +120,13 @@ const environment = ({ url, apiToken }: E) => new Environment({
 });
 
 
-
-const env = environment({
+export const cloudrobe = environment({
   url: `${url}/cloudrobe/graphql`,
   apiToken: 'c409e6f36289f6e2323c55180c259f26e21513509364e2e98a82b0b1ac550002'
 });
 ;
 
-export default env
+export const connections = environment({
+  url: `${url}/connections/graphql`,
+  apiToken: 'a6216f599cefe5a109425a5b7a3320a712972ff1e159ff962ddfd39540bdb6ef'
+});

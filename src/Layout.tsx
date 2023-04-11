@@ -1,8 +1,9 @@
 import React from 'react';
 import { Avatar, Box, BoxProps, IconButton } from '@mui/material';
-import { Outlet, useNavigate, useNavigation } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Header from './components/header';
 import { Home } from '@mui/icons-material';
+import { Environment, RelayEnvironmentProvider } from 'react-relay';
 
 function Root(props: BoxProps) {
   return (
@@ -129,45 +130,47 @@ function Content(props: any) {
   )
 }
 
-function Layout() {
+function Layout({ env }: { env: Environment }) {
   const nav = useNavigate();
   return (
-    <Root>
+    <RelayEnvironmentProvider environment={env}>
+      <Root>
 
-      <Header />
+        <Header />
 
-      <Content>
+        <Content>
 
-        <NavBar>
-          <IconButton
-            sx={{
-              alignSelf: "center",
-              mb: "1rem",
-            }}
-            children={<Avatar children='JS' />}
-            onClick={() => nav("/auth")}
-          />
+          <NavBar>
+            <IconButton
+              sx={{
+                alignSelf: "center",
+                mb: "1rem",
+              }}
+              children={<Avatar children='JS' />}
+              onClick={() => nav("/auth")}
+            />
 
-          <IconButton
-            sx={{
-              alignSelf: "center",
-              mb: "1rem",
-            }}
-            children={<Home />}
-            onClick={() => nav("/")}
-          />
+            <IconButton
+              sx={{
+                alignSelf: "center",
+                mb: "1rem",
+              }}
+              children={<Home />}
+              onClick={() => nav("/")}
+            />
 
-        </NavBar>
+          </NavBar>
 
-        <Main>
-          <Outlet />
+          <Main>
+            <Outlet />
 
-          <Footer />
-        </Main>
+            <Footer />
+          </Main>
 
-      </Content>
+        </Content>
 
-    </Root>
+      </Root>
+    </RelayEnvironmentProvider>
   );
 }
 

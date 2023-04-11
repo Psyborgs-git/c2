@@ -460,7 +460,6 @@ class Authentication extends React.Component<AuthenticationProps, Authentication
     }
 
     HeaderStack = () => {
-        const nav: any = useNavigate();
 
         return (
             <Stack direction="row" alignItems='center' justifyContent="space-between" >

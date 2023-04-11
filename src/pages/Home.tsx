@@ -1,5 +1,5 @@
 import { StarBorder } from '@mui/icons-material';
-import { Box, Button, Container, Grid, IconButton, ImageList, ImageListItem, ImageListItemBar, ImageListItemProps, ImageListProps, Skeleton, Stack, Typography, keyframes, useMediaQuery } from '@mui/material';
+import { Box, Button, Container, IconButton, ImageList, ImageListItem, ImageListItemBar, ImageListItemProps, ImageListProps, Skeleton, Stack, Typography, useMediaQuery } from '@mui/material';
 import React from 'react';
 import fadeIn from '../animations/fadeIn';
 import { useLazyLoadQuery } from 'react-relay';
@@ -87,7 +87,7 @@ class Home extends React.Component<HomeProps, HomeState> {
         };
     }
 
-    _image_list_item = ({ item, index }: {
+    IMAGE_LIST_ITEM = ({ item, index }: {
         item: {
             id?: string;
             img: string;
@@ -197,7 +197,7 @@ class Home extends React.Component<HomeProps, HomeState> {
     }
 
     RenderData = () => {
-        const { List, _image_list_item } = this;
+        const { List, IMAGE_LIST_ITEM } = this;
         const { category } = this.state;
         const data = useLazyLoadQuery<HomeQuery>(
             graphql`
@@ -278,15 +278,25 @@ class Home extends React.Component<HomeProps, HomeState> {
                                     }
                                 }}
                             >
-                                <Stack direction="row" spacing={2} flex={1} >
+                                <Stack direction="row" spacing={2} flex={1} mx={1} >
                                     {
                                         data?.categories?.map(
                                             (i, x) => (
                                                 <Button
-                                                    sx={{ color: "text", px: "0.5rem", mx: '0.5rem', textTransform: "uppercase", textDecoration: category === i ? "underline" : "none", bgcolor: category === i ? "background.neutral" : "transparent" }}
+                                                    sx={{ px: "0.5rem", bgcolor: category === i ? "background.neutral" : "transparent" }}
                                                     onClick={() => { this.setState({ category: i ?? undefined }) }}
                                                     variant={"text"}
-                                                    children={i}
+                                                    children={
+                                                        <Typography
+                                                            variant="body1"
+                                                            children={i}
+                                                            textTransform="uppercase"
+                                                            sx={{
+                                                                textDecoration: category === i ? "underline" : "none",
+                                                                maxLines: 1,
+                                                            }}
+                                                        />
+                                                    }
                                                 />
                                             )
                                         )
@@ -302,7 +312,7 @@ class Home extends React.Component<HomeProps, HomeState> {
                             data?.explore?.trending?.apparel?.edges
                                 ?.map(
                                     (i, x) =>
-                                        <_image_list_item
+                                        <IMAGE_LIST_ITEM
                                             item={{
                                                 img: i?.node?.thumbnail?.url ?? "https://images.unsplash.com/photo-1589118949245-7d38baf380d6",
                                                 title: i?.node?.name ?? " - ",
@@ -318,7 +328,7 @@ class Home extends React.Component<HomeProps, HomeState> {
                         }
                         {
                             itemData.map(
-                                (i, x) => <_image_list_item item={i} index={x} />
+                                (i, x) => <IMAGE_LIST_ITEM item={i} index={x} />
                             )
                         }
                     </>
@@ -328,7 +338,6 @@ class Home extends React.Component<HomeProps, HomeState> {
     }
 
     render() {
-        const { } = this.state;
         const { RenderSkeleton, RenderData } = this;
 
         return (
