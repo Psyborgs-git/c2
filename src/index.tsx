@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 // react-router
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 
 // analytics
 import reportWebVitals from './reportWebVitals';
@@ -20,7 +20,8 @@ const root = ReactDOM.createRoot(
 );
 
 const helmetContext = {};
-const router = createBrowserRouter(routes);
+// const router = createBrowserRouter(routes);
+const router = createMemoryRouter(routes, { initialEntries: ["/client"] });
 
 root.render(
   <React.StrictMode>
