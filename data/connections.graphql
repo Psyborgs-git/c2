@@ -80,8 +80,8 @@ type ApplicationType implements Node {
 	status: String
 }
 
-type Connection {
-	id: UUID!
+type Connection implements Node {
+	id: ID!
 	app: ApplicationType
 	contacts(
 		offset: Int
@@ -94,8 +94,43 @@ type Connection {
 		name_Icontains: String
 		createdAt_Lt: DateTime
 		createdAt_Gt: DateTime
+		lastUpdated_Lt: DateTime
+		lastUpdated_Gt: DateTime
+		company_Icontains: String
+		currentPosition_Icontains: String
+		address_Icontains: String
+		city_Icontains: String
+		state_Icontains: String
+		country_Name_Icontains: String
+		pincode_Icontains: String
 	): DetailsConnection!
 	userIsOwner: Boolean
+	notes(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		title_Icontains: String
+		content_Icontains: String
+		contact_Name_Icontains: String
+		contact_CurrentPosition_Icontains: String
+		contact_Company_Icontains: String
+		lastUpdated_Gte: DateTime
+		lastUpdated_Lte: DateTime
+		createdAt_Gte: DateTime
+		createdAt_Lte: DateTime
+	): NoteConnection
+}
+
+type ConnectionConnection {
+	pageInfo: PageInfo!
+	edges: [ConnectionEdge]!
+}
+
+type ConnectionEdge {
+	node: Connection
+	cursor: String!
 }
 
 input ConnectionMutationInput {
@@ -118,6 +153,12 @@ input ContactMutationInput {
 	emails: [String]
 	name: String
 	nickname: String
+	company: String
+	currentPosition: String
+	address: String
+	city: String
+	state: String
+	country: String
 	clientMutationId: String
 }
 
@@ -126,6 +167,17 @@ type ContactMutationPayload {
 	error: String
 	contact: Details
 	clientMutationId: String
+}
+
+type Country implements Node {
+	id: ID!
+	name: String!
+	iso2: String!
+	iso3: String!
+	un: Int!
+	region: Int!
+	subregion: Int!
+	geom: MultiPolygonScalar!
 }
 
 scalar Date
@@ -146,6 +198,13 @@ type Details implements Node {
 		first: Int
 		last: Int
 	): MobileNumberConnection!
+	company: String
+	currentPosition: String
+	address: String
+	city: String
+	state: String
+	country: Country
+	pincode: String
 	emails: [String]
 }
 
@@ -174,8 +233,8 @@ type EmailAddressTypeEdge {
 	cursor: String!
 }
 
-type Group {
-	id: UUID!
+type Group implements Node {
+	id: ID!
 	name: String!
 	connection: Connection
 	contacts(
@@ -189,8 +248,27 @@ type Group {
 		name_Icontains: String
 		createdAt_Lt: DateTime
 		createdAt_Gt: DateTime
+		lastUpdated_Lt: DateTime
+		lastUpdated_Gt: DateTime
+		company_Icontains: String
+		currentPosition_Icontains: String
+		address_Icontains: String
+		city_Icontains: String
+		state_Icontains: String
+		country_Name_Icontains: String
+		pincode_Icontains: String
 	): DetailsConnection!
 	userIsOwner: Boolean
+}
+
+type GroupConnection {
+	pageInfo: PageInfo!
+	edges: [GroupEdge]!
+}
+
+type GroupEdge {
+	node: Group
+	cursor: String!
 }
 
 input GroupMutationInput {
@@ -234,14 +312,54 @@ input ModifyList {
 	remove: [ID]
 }
 
+scalar MultiPolygonScalar
+
 type Mutation {
 	contact(input: ContactMutationInput!): ContactMutationPayload
 	connection(input: ConnectionMutationInput!): ConnectionMutationPayload
 	group(input: GroupMutationInput!): GroupMutationPayload
+	note(input: NoteMutationInput!): NoteMutationPayload
 }
 
 interface Node {
 	id: ID!
+}
+
+type Note implements Node {
+	createdAt: DateTime!
+	lastUpdated: DateTime!
+	id: ID!
+	title: String!
+	content: String!
+	app: ApplicationType
+	contact: Details
+	userIsOwner: Boolean
+}
+
+type NoteConnection {
+	pageInfo: PageInfo!
+	edges: [NoteEdge]!
+}
+
+type NoteEdge {
+	node: Note
+	cursor: String!
+}
+
+input NoteMutationInput {
+	id: ID
+	title: String
+	content: String
+	contact: MobileNumberInput
+	contactId: ID
+	clientMutationId: String
+}
+
+type NoteMutationPayload {
+	success: Boolean
+	error: String
+	note: Note
+	clientMutationId: String
 }
 
 type PageInfo {
@@ -254,8 +372,25 @@ type PageInfo {
 type Query {
 	contact(id: ID!): Details
 	group(id: ID!): Group
-	userConnections: [Connection!]
-	userGroups: [Group!]
+	note(id: ID!): Note
+	userConnections(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		contacts_Name_Icontains: String
+		contacts_CurrentPosition_Icontains: String
+		contacts_Company_Icontains: String
+	): ConnectionConnection
+	userGroups(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		name_Icontains: String
+	): GroupConnection
 	connection: Connection
 	contacts(
 		offset: Int
@@ -268,7 +403,31 @@ type Query {
 		name_Icontains: String
 		createdAt_Lt: DateTime
 		createdAt_Gt: DateTime
+		lastUpdated_Lt: DateTime
+		lastUpdated_Gt: DateTime
+		company_Icontains: String
+		currentPosition_Icontains: String
+		address_Icontains: String
+		city_Icontains: String
+		state_Icontains: String
+		country_Name_Icontains: String
+		pincode_Icontains: String
 	): DetailsConnection
+	notes(
+		contactId: ID
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		title_Icontains: String
+		content_Icontains: String
+		contact_Name_Icontains: String
+		contact_CurrentPosition_Icontains: String
+		contact_Company_Icontains: String
+		lastUpdated_Gte: DateTime
+		lastUpdated_Lte: DateTime
+		createdAt_Gte: DateTime
+		createdAt_Lte: DateTime
+	): NoteConnection
 }
-
-scalar UUID

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<185b10daef5aafffd80cc436ba807370>>
+ * @generated SignedSource<<6a90df4df674b7dd30a227fa3db63ceb>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,6 +19,8 @@ export type ClientQuery$data = {
     readonly contacts: {
       readonly edges: ReadonlyArray<{
         readonly node: {
+          readonly company: string | null;
+          readonly currentPosition: string | null;
           readonly description: string | null;
           readonly emails: ReadonlyArray<string | null> | null;
           readonly id: string;
@@ -36,7 +38,7 @@ export type ClientQuery$data = {
         } | null;
       } | null>;
     };
-    readonly id: any;
+    readonly id: string;
     readonly userIsOwner: boolean | null;
   } | null;
 };
@@ -140,6 +142,20 @@ v2 = [
                   {
                     "alias": null,
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "currentPosition",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "company",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
                     "concreteType": "MobileNumberConnection",
                     "kind": "LinkedField",
                     "name": "mobile",
@@ -216,16 +232,16 @@ return {
     "selections": (v2/*: any*/)
   },
   "params": {
-    "cacheID": "c8d0e0a72f2683f0416e84a0037b97a6",
+    "cacheID": "fe671c29c8cd3c7b81478106f3f349ed",
     "id": null,
     "metadata": {},
     "name": "ClientQuery",
     "operationKind": "query",
-    "text": "query ClientQuery {\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          id\n          name\n          description\n          emails\n          lastUpdated\n          mobile {\n            edges {\n              node {\n                id\n                number\n                countryCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query ClientQuery {\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          id\n          name\n          description\n          emails\n          lastUpdated\n          currentPosition\n          company\n          mobile {\n            edges {\n              node {\n                id\n                number\n                countryCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "242b2c6c894c327ed14f17a1ebc82794";
+(node as any).hash = "46c6769e4b07171d6146501deeb4e781";
 
 export default node;

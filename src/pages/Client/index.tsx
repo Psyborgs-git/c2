@@ -1,11 +1,22 @@
 import React from 'react';
-import { AppBar, Avatar, Box, BoxProps, Button, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Stack, Tab, Tabs, Typography, keyframes } from '@mui/material';
+
+// 
+import { AppBar, Avatar, Box, BoxProps, Button, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemText, Skeleton, Stack, Tab, Tabs, Typography, keyframes } from '@mui/material';
 import { Call, Close, Email, Menu } from '@mui/icons-material';
+
+// 
 import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
+
+// 
 import { connections } from '../../relay/environment';
 import { ClientQuery } from './__generated__/ClientQuery.graphql';
+import { ClientContactNotesQuery } from './__generated__/ClientContactNotesQuery.graphql';
+import NoteMod from './NoteMod';
+import Contact from './Contact';
 
+// 
 const graphql = require('babel-plugin-relay/macro');
+
 
 interface indexProps {
 
@@ -15,7 +26,8 @@ interface indexState {
     sidebarOpen: boolean;
     name: string;
     icon?: string;
-    profession: string;
+    profession?: string;
+    company?: string;
     description: string;
     emails?: string[];
     mobile?: Array<{
@@ -24,6 +36,7 @@ interface indexState {
         countryCode: string;
     }>;
     lastUpdated?: string;
+    selectedNode?: string;
 }
 
 const tabAnimation = keyframes`
@@ -57,27 +70,28 @@ function a11yProps(index: number) {
     };
 }
 
-interface TabPanelProps {
+interface TabPanelProps extends BoxProps {
     children?: React.ReactNode;
     index: number;
     value: number;
 }
 
 function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
+    const { children, value, index, sx, ...other } = props;
 
     return (
         <Box
             component="div"
-            sx={{
+            sx={[{
                 animation: `${tabAnimation} 300ms ease-in-out both`,
                 width: "100%",
                 height: "max-content",
                 minHeight: "200px",
                 bgcolor: "background.paper",
-                boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
                 borderRadius: "1rem",
-            }}
+            },
+            ...(Array.isArray(sx) ? sx : [sx])
+            ]}
             role="tabpanel"
             hidden={value !== index}
             id={`vertical-tabpanel-${index}`}
@@ -93,16 +107,20 @@ function TabPanel(props: TabPanelProps) {
     );
 }
 
+const addShadow = { boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)" };
+
 
 class Client extends React.Component<indexProps, indexState> {
 
     constructor(props: indexProps) {
         super(props);
         this.state = {
-            sidebarOpen: false,
+            sidebarOpen: true,
             name: "Jainam Shah",
             profession: "Founder | Developer",
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus."
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus.",
+            company: "Shah Enterprises",
+            selectedNode: "RGV0YWlsczpjZGEwYmRkNy1lOGZlLTQwZjUtOGY4NC1mYTlmZmFhMjUzMzg="
         };
     }
 
@@ -113,11 +131,7 @@ class Client extends React.Component<indexProps, indexState> {
     Header = () => {
         const { sidebarOpen } = this.state;
         return (
-            <Box sx={{
-                width: "100%",
-                height: "100px",
-                background: "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
-            }} >
+            <Box sx={{ width: "100%", height: "60px", }} >
                 <IconButton
                     onClick={this._toggleSidebar}
                     sx={{
@@ -128,10 +142,10 @@ class Client extends React.Component<indexProps, indexState> {
                         height: "40px",
                         borderRadius: "50%",
                         backdropFilter: "blur(9px)",
-                        background: "focal-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
                         zIndex: 99,
                         bgcolor: "background.backdrop",
                         color: "text.primary",
+                        boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
                         display: {
                             xs: "block",
                             md: "none"
@@ -163,6 +177,8 @@ class Client extends React.Component<indexProps, indexState> {
                                     description
                                     emails
                                     lastUpdated
+                                    currentPosition
+                                    company
                                     mobile {
                                         edges {
                                             node {
@@ -185,79 +201,75 @@ class Client extends React.Component<indexProps, indexState> {
         const _onContactClick = (contact: any) => {
             this.setState({
                 name: contact?.name,
-                profession: contact?.profession,
                 description: contact?.description,
                 sidebarOpen: false,
                 emails: contact?.emails,
                 mobile: contact?.mobile?.edges?.map((edge: any) => edge?.node),
-                lastUpdated: contact?.lastUpdated
+                lastUpdated: contact?.lastUpdated,
+                selectedNode: contact?.id,
+                profession: contact?.currentPosition ?? undefined,
+                company: contact?.company ?? undefined,
             })
 
         }
 
         return (
-            <Box
-                sx={{ width: "100%", height: "100%", }}
-            >
+            <Stack sx={{ py: 2, flex: 1, display: "block" }}>
 
-                <Stack>
-                    <Box sx={{ py: 2 }}>
-                        <Avatar sx={{ width: 56, height: 56, margin: "auto", mb: 3 }} />
-                        <Typography sx={{ textAlign: "center" }} variant="h6" gutterBottom>
-                            {data.connection?.app?.name}
-                        </Typography>
+                <Avatar sx={{ width: 56, height: 56, margin: "auto", mb: 3 }} />
 
-                        <Divider sx={{ margin: "10px 0px" }} />
+                <Typography sx={{ textAlign: "center" }} variant="h6" gutterBottom>
+                    {data.connection?.app?.name}
+                </Typography>
 
-                        <List
-                            sx={{
-                                p: "1rem"
-                            }}
-                        >
-                            {
-                                data?.connection?.contacts?.edges
-                                    ?.map(
-                                        (contact, index) => {
-                                            return (
-                                                <ListItem
-                                                    key={index}
-                                                    sx={{
-                                                        borderRadius: "1rem",
-                                                        boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                                                        my: "0.5rem",
-                                                        "&:hover": {
-                                                            background: "linear-gradient(-90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
-                                                            color: "white"
-                                                        }
-                                                    }}
-                                                    button onClick={() => _onContactClick(contact?.node)} >
+                <Divider sx={{ margin: "10px 0px" }} />
 
-                                                    <ListItemAvatar>
-                                                        <Avatar >
-                                                            {contact?.node?.name?.charAt(0)}
-                                                        </Avatar>
-                                                    </ListItemAvatar>
+                <List sx={{ p: "1rem" }} >
+                    <Contact />
+                    {
+                        data
+                            ?.connection
+                            ?.contacts
+                            ?.edges
+                            ?.map(
+                                (contact, index) => {
+                                    return (
+                                        <ListItem
+                                            key={contact?.node?.id}
+                                            sx={{
+                                                borderRadius: "1rem",
+                                                boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                                                my: "0.5rem",
+                                                "&:hover": {
+                                                    background: "linear-gradient(-90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
+                                                    color: "white"
+                                                }
+                                            }}
+                                            button
+                                            onClick={() => _onContactClick(contact?.node)}
+                                        >
 
-                                                    <ListItemText
-                                                        primary={contact?.node?.name}
-                                                        secondary={
-                                                            `${contact?.node?.emails?.length} emails | ${contact?.node?.mobile?.edges?.length} mobiles`
-                                                        }
-                                                    />
+                                            <ListItemAvatar>
+                                                <Avatar >
+                                                    {contact?.node?.name?.charAt(0)}
+                                                </Avatar>
+                                            </ListItemAvatar>
 
-                                                    <ListItemIcon>
-                                                    </ListItemIcon>
+                                            <ListItemText
+                                                primary={contact?.node?.name}
+                                                secondary={
+                                                    `${contact?.node?.emails?.length} emails | ${contact?.node?.mobile?.edges?.length} mobiles`
+                                                }
+                                            />
 
-                                                </ListItem>
-                                            )
-                                        })
-                            }
-                        </List>
+                                        </ListItem>
+                                    )
+                                }
+                            )
+                    }
+                </List>
 
-                    </Box>
-                </Stack>
-
-            </Box>
+            </Stack>
         )
     }
 
@@ -283,11 +295,11 @@ class Client extends React.Component<indexProps, indexState> {
                     [theme.breakpoints.down("md")]: {
                         animation: `${sideBarAnimation} 500ms ease-in-out ${this.state.sidebarOpen ? "both" : "reverse"}`,
                         display: sidebarOpen ? "block" : "none",
-                        width: "100vw",
                         position: "absolute",
                         backdropFilter: "blur(9px)",
                         zIndex: 1,
                         top: 0,
+                        bottom: 0,
                         left: 0,
                     },
                     [theme.breakpoints.up("md")]: {
@@ -301,7 +313,7 @@ class Client extends React.Component<indexProps, indexState> {
     }
 
     ProfileInfo = () => {
-        const { name, profession } = this.state;
+        const { name, profession, company } = this.state;
         return (
             <Stack
                 direction={{
@@ -321,46 +333,63 @@ class Client extends React.Component<indexProps, indexState> {
                         height: "100px",
                         width: "100px",
                         boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                        mx: {
-                            md: "2rem"
-                        },
                         my: "0.5rem"
                     }}
                 >
                     <Avatar
                         src="https://cdn-icons-png.flaticon.com/512/174/174857.png"
                         alt={name ?? "icon"}
-                        sx={{ objectFit: "fill" }}
+                        sx={{ objectFit: "cover" }}
                     />
                 </IconButton>
 
-                <Typography
-                    flex={1}
-                    ml={{
-                        xs: "0.5px",
-                        md: "2rem"
-                    }}
-                    sx={{
-                        fontSize: "1.5rem",
-                        fontWeight: "bold",
-                        color: "text.primary",
-                        top: "-9px"
-                    }}
-                    children={name}
-                />
-                <Typography
-                    flex={1}
-                    ml={{
-                        xs: "0.5px",
-                        md: "2rem"
-                    }}
-                    variant="caption"
-                    sx={{
-                        fontSize: "1rem",
-                        color: "text.primary",
-                    }}
-                    children={profession}
-                />
+                <Stack flex={1} gap={0.33} >
+                    <Typography
+                        flex={1}
+                        ml={{
+                            xs: "0.5px",
+                            md: "2rem"
+                        }}
+                        sx={{
+                            fontSize: "1.5rem",
+                            fontWeight: "bold",
+                            color: "text.primary",
+                            top: "-9px"
+                        }}
+                        children={name}
+                    />
+                    <Stack>
+                        <Typography
+                            flex={1}
+                            ml={{
+                                xs: "0.5px",
+                                md: "2rem"
+                            }}
+                            variant="caption"
+                            sx={{
+                                fontSize: "1rem",
+                                color: "text.primary",
+                            }}
+                            children={profession ? profession : " - "}
+                        />
+                        {
+                            company &&
+                            <Typography
+                                flex={1}
+                                ml={{
+                                    xs: "0.5px",
+                                    md: "2rem"
+                                }}
+                                variant="overline"
+                                sx={{
+                                    fontSize: "0.72rem",
+                                    color: "text.primary",
+                                }}
+                                children={("@" + company)}
+                            />
+                        }
+                    </Stack>
+                </Stack>
 
                 <Button variant="outlined" sx={{ px: "1rem", borderColor: "#eee" }} >
                     Go to Github
@@ -372,26 +401,99 @@ class Client extends React.Component<indexProps, indexState> {
 
     ProfileTab = () => {
         return (
-            <>
+            <Stack>
+
                 <Typography
                     variant="subtitle2"
                 >
-                    Bio
+                    About
                 </Typography>
+
                 <Typography
-                    sx={{}}
                     variant="body1"
                 >
-                    {this.state.description ?? "No description"}
+                    {this.state.description.length > 0 ? this.state.description : "No description"}
                 </Typography>
-            </>
+
+            </Stack>
         )
     }
 
     WorkHistoryTab = () => {
         return (
-            <>
-            </>
+            <Stack>
+
+            </Stack>
+        )
+    }
+
+    NoteTab = () => {
+        const { selectedNode } = this.state;
+        const notes = useLazyLoadQuery<ClientContactNotesQuery>(
+            graphql`
+                query ClientContactNotesQuery($contactId: ID!)
+                {
+                    notes(contactId: $contactId) {
+                        edges {
+                            node {
+                                id 
+                                title
+                                content
+                                userIsOwner
+                                createdAt
+                                lastUpdated
+                            }
+                        }
+                    }
+                }
+            `,
+            // @ts-ignore
+            { contactId: selectedNode },
+            { fetchPolicy: "store-or-network" }
+        )
+
+        return (
+            <Stack gap={1} >
+
+                {
+                    notes?.notes?.edges?.map(
+                        (note, index) => {
+                            return (
+                                <Stack
+                                    key={note?.node?.id}
+                                    gap={1}
+                                    p={1}
+                                    sx={[addShadow, {
+                                        borderRadius: "0.5rem",
+                                        boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                                        my: "0.5rem"
+                                    }]}
+                                >
+                                    <Typography variant="h6" >
+                                        Title : {note?.node?.title ?? " - "}
+                                    </Typography>
+
+                                    <Typography variant='body1' >
+                                        Note : {note?.node?.content ?? " - "}
+                                    </Typography>
+
+                                    <Stack gap={1} justifyContent="space-between" >
+                                        <Typography variant="caption" fontSize="0.33rem" >
+                                            last Updated : {new Date(note?.node?.lastUpdated).toLocaleString()}
+                                        </Typography>
+                                        <Typography variant="caption" fontSize="0.33rem" >
+                                            created At : {new Date(note?.node?.createdAt).toLocaleString()}
+                                        </Typography>
+                                    </Stack>
+
+                                </Stack>
+                            )
+                        })
+                }
+
+                <NoteMod />
+
+            </Stack>
         )
     }
 
@@ -436,14 +538,15 @@ class Client extends React.Component<indexProps, indexState> {
     }
 
     ProfileTabs = () => {
-        const [value, setValue] = React.useState(0);
-        const { ProfileTab, WorkHistoryTab, ContactTab } = this;
+        const [value, setValue] = React.useState(3);
+        const { ProfileTab, WorkHistoryTab, ContactTab, NoteTab } = this;
+        const { selectedNode } = this.state;
         const handleChange = (event: React.SyntheticEvent, newValue: number) => {
             setValue(newValue);
         };
 
         return (
-            <>
+            <Stack>
 
                 <AppBar
                     position="static"
@@ -451,6 +554,7 @@ class Client extends React.Component<indexProps, indexState> {
                         backgroundColor: "background.backdrop",
                         borderRadius: "0.5rem",
                         boxShadow: "none",
+                        pt: "0.5rem",
                     }} >
                     <Tabs
                         value={value}
@@ -463,7 +567,10 @@ class Client extends React.Component<indexProps, indexState> {
                         aria-label="full width tabs example"
                         sx={{ color: "text.primary", }}
                     >
-                        <Tab label="Profile"  {...a11yProps(0)} />
+                        <Tab
+                            label="Profile"
+                            {...a11yProps(0)}
+                        />
                         <Tab
                             label="Work History"
                             disabled
@@ -474,10 +581,15 @@ class Client extends React.Component<indexProps, indexState> {
                             disabled={this.state.mobile?.length === 0 && this.state.emails?.length === 0}
                             {...a11yProps(2)}
                         />
+                        <Tab
+                            label="Notes"
+                            {...a11yProps(3)}
+                            disabled={!selectedNode}
+                        />
                     </Tabs>
                 </AppBar>
 
-                <TabPanel value={value} index={0} >
+                <TabPanel sx={[addShadow]} value={value} index={0} >
                     <ProfileTab />
                 </TabPanel>
                 <TabPanel value={value} index={1} >
@@ -486,8 +598,13 @@ class Client extends React.Component<indexProps, indexState> {
                 <TabPanel value={value} index={2} >
                     <ContactTab />
                 </TabPanel>
+                <TabPanel value={value} index={3} >
+                    <React.Suspense fallback={<Skeleton variant="rounded" width="100%" height='200px' />} >
+                        <NoteTab />
+                    </React.Suspense>
+                </TabPanel>
 
-            </>
+            </Stack>
         )
     }
 
@@ -501,7 +618,7 @@ class Client extends React.Component<indexProps, indexState> {
                 minHeight: "200px",
                 px: {
                     xs: "1rem",
-                    md: "0.5rem"
+                    md: "1.5rem"
                 }
             }} >
 

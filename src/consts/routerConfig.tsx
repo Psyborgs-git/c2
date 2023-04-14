@@ -26,11 +26,11 @@ const routes = [
         ]
     },
     {
-        path: "auth",
+        path: "/auth",
         element: <Authentication />,
     },
     {
-        path: "client",
+        path: "/client",
         element: <Client />,
     }
 ]
