@@ -1,18 +1,22 @@
 import React from 'react';
 
-// 
-import { AppBar, Avatar, Box, BoxProps, Button, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemText, Skeleton, Stack, Tab, Tabs, Typography, keyframes } from '@mui/material';
-import { Call, Close, Email, Menu } from '@mui/icons-material';
+// MUI
+import { AppBar, Avatar, Box, BoxProps, Button, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemText, Skeleton, Stack, Tab, Tabs, TextField, Typography, keyframes } from '@mui/material';
 
-// 
+// Icons
+import { Call, Close, Email, FilterList, Menu, Search } from '@mui/icons-material';
+
+// Relay
 import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
 
-// 
+// components
+import NoteMod from './NoteMod';
+import Contact from './Contact';
+
+// graphql
 import { connections } from '../../relay/environment';
 import { ClientQuery } from './__generated__/ClientQuery.graphql';
 import { ClientContactNotesQuery } from './__generated__/ClientContactNotesQuery.graphql';
-import NoteMod from './NoteMod';
-import Contact from './Contact';
 
 // 
 const graphql = require('babel-plugin-relay/macro');
@@ -37,6 +41,8 @@ interface indexState {
     }>;
     lastUpdated?: string;
     selectedNode?: string;
+    searchOpen?: boolean;
+    search?: string;
 }
 
 const tabAnimation = keyframes`
@@ -83,7 +89,7 @@ function TabPanel(props: TabPanelProps) {
         <Box
             component="div"
             sx={[{
-                animation: `${tabAnimation} 300ms ease-in-out both`,
+                animation: `${tabAnimation} 500ms ease-in-out both`,
                 width: "100%",
                 height: "max-content",
                 minHeight: "200px",
@@ -120,41 +126,126 @@ class Client extends React.Component<indexProps, indexState> {
             profession: "Founder | Developer",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus.",
             company: "Shah Enterprises",
-            selectedNode: "RGV0YWlsczpjZGEwYmRkNy1lOGZlLTQwZjUtOGY4NC1mYTlmZmFhMjUzMzg="
+            selectedNode: undefined,
+            searchOpen: false,
+            search: "",
         };
     }
 
     _toggleSidebar = () => {
         this.setState({ sidebarOpen: !this.state.sidebarOpen });
     }
+    _toggleSearchbar = () => {
+        this.setState({ searchOpen: !this.state.searchOpen });
+    }
 
     Header = () => {
-        const { sidebarOpen } = this.state;
+        return null;
+    }
+
+    SideBarToggleButton = () => {
+        const { sidebarOpen, searchOpen } = this.state;
         return (
-            <Box sx={{ width: "100%", height: "60px", }} >
+            <Box sx={{
+                position: "absolute",
+                top: "10px",
+                left: "0",
+                right: "0",
+                width: "100vw",
+                zIndex: 99,
+                justifyContent: "space-between",
+                flexDirection: "row",
+                p: 1,
+                display: {
+                    xs: "flex",
+                    md: "none"
+                },
+            }}>
                 <IconButton
                     onClick={this._toggleSidebar}
                     sx={{
-                        position: "absolute",
-                        top: "10px",
-                        left: "10px",
                         width: "40px",
                         height: "40px",
                         borderRadius: "50%",
                         backdropFilter: "blur(9px)",
-                        zIndex: 99,
                         bgcolor: "background.backdrop",
                         color: "text.primary",
                         boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                        display: {
-                            xs: "block",
-                            md: "none"
-                        }
                     }}
                 >
                     {sidebarOpen ? <Close /> : <Menu />}
                 </IconButton>
+
+                <Box flex={1}>
+
+                </Box>
+
+                <IconButton
+                    onClick={this._toggleSearchbar}
+                    sx={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        backdropFilter: "blur(9px)",
+                        bgcolor: "background.backdrop",
+                        color: "text.primary",
+                        boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                    }}
+                >
+                    {searchOpen ? <Close /> : <Search />}
+                </IconButton>
             </Box>
+        )
+    }
+
+    _onContactClick = (contact: any) => {
+        this.setState({
+            name: contact?.name,
+            description: contact?.description,
+            sidebarOpen: false,
+            emails: contact?.emails,
+            mobile: contact?.mobile?.edges?.map((edge: any) => edge?.node),
+            lastUpdated: contact?.lastUpdated,
+            selectedNode: contact?.id,
+            profession: contact?.currentPosition ?? undefined,
+            company: contact?.company ?? undefined,
+        })
+
+    }
+
+    _render_contact = (contact: any, index: number) => {
+        const { _onContactClick } = this;
+
+        return (
+            <ListItem
+                key={contact?.node?.id}
+                sx={{
+                    borderRadius: "1rem",
+                    boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                    my: "0.5rem",
+                    "&:hover": {
+                        background: "linear-gradient(-90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
+                        color: "white"
+                    }
+                }}
+                button
+                onClick={() => _onContactClick(contact?.node)}
+            >
+
+                <ListItemAvatar>
+                    <Avatar >
+                        {contact?.node?.name?.charAt(0)}
+                    </Avatar>
+                </ListItemAvatar>
+
+                <ListItemText
+                    primary={contact?.node?.name}
+                    secondary={
+                        `${contact?.node?.emails?.length} emails | ${contact?.node?.mobile?.edges?.length} mobiles`
+                    }
+                />
+
+            </ListItem>
         )
     }
 
@@ -162,6 +253,31 @@ class Client extends React.Component<indexProps, indexState> {
         const data = useLazyLoadQuery<ClientQuery>(
             graphql`
                 query ClientQuery {
+                    groups {
+                        edges {
+                            node {
+                                id
+                                contacts {
+                                    edges {
+                                        node {
+                                            id
+                                            name
+                                            mobile {
+                                                edges {
+                                                    node {
+                                                        id
+                                                        countryCode
+                                                        number
+                                                    }
+                                                }
+                                            }
+                                            emails
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     connection {
                         id
                         userIsOwner
@@ -197,24 +313,11 @@ class Client extends React.Component<indexProps, indexState> {
             {},
             { fetchPolicy: "store-or-network" }
         );
+        const { _render_contact } = this;
 
-        const _onContactClick = (contact: any) => {
-            this.setState({
-                name: contact?.name,
-                description: contact?.description,
-                sidebarOpen: false,
-                emails: contact?.emails,
-                mobile: contact?.mobile?.edges?.map((edge: any) => edge?.node),
-                lastUpdated: contact?.lastUpdated,
-                selectedNode: contact?.id,
-                profession: contact?.currentPosition ?? undefined,
-                company: contact?.company ?? undefined,
-            })
-
-        }
 
         return (
-            <Stack sx={{ py: 2, flex: 1, display: "block" }}>
+            <Stack sx={{ py: 2, height: "100vh", display: "block" }}>
 
                 <Avatar sx={{ width: 56, height: 56, margin: "auto", mb: 3 }} />
 
@@ -224,50 +327,10 @@ class Client extends React.Component<indexProps, indexState> {
 
                 <Divider sx={{ margin: "10px 0px" }} />
 
-                <List sx={{ p: "1rem" }} >
-                    <Contact />
-                    {
-                        data
-                            ?.connection
-                            ?.contacts
-                            ?.edges
-                            ?.map(
-                                (contact, index) => {
-                                    return (
-                                        <ListItem
-                                            key={contact?.node?.id}
-                                            sx={{
-                                                borderRadius: "1rem",
-                                                boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                                                my: "0.5rem",
-                                                "&:hover": {
-                                                    background: "linear-gradient(-90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
-                                                    color: "white"
-                                                }
-                                            }}
-                                            button
-                                            onClick={() => _onContactClick(contact?.node)}
-                                        >
-
-                                            <ListItemAvatar>
-                                                <Avatar >
-                                                    {contact?.node?.name?.charAt(0)}
-                                                </Avatar>
-                                            </ListItemAvatar>
-
-                                            <ListItemText
-                                                primary={contact?.node?.name}
-                                                secondary={
-                                                    `${contact?.node?.emails?.length} emails | ${contact?.node?.mobile?.edges?.length} mobiles`
-                                                }
-                                            />
-
-                                        </ListItem>
-                                    )
-                                }
-                            )
-                    }
-                </List>
+                <List
+                    sx={{ p: "1rem", flex: 1 }}
+                    children={data?.connection?.contacts?.edges?.map(_render_contact)}
+                />
 
             </Stack>
         )
@@ -309,6 +372,57 @@ class Client extends React.Component<indexProps, indexState> {
                 })}
                 {...props}
             />
+        )
+    }
+
+    SearchPanel = () => {
+
+
+        return (
+            <Box
+                sx={
+                    theme =>
+                    ({
+                        bgcolor: "backgroud.paper",
+                        height: "100vh",
+                        overflowY: "scroll",
+                        overflowX: "hidden",
+                        p: 1,
+                        pt: {
+                            xs: 3,
+                            md: 1
+                        },
+                        [theme.breakpoints.down("md")]: {
+
+                        },
+                        [theme.breakpoints.up("md")]: {
+                            display: "flex",
+                            flex: 1
+                        }
+                    })
+                }
+            >
+                <Stack gap={1} >
+
+                    <Stack direction='row' mb={2} position="sticky" >
+                        <TextField
+                            sx={{
+                                flex: 1,
+                                borderRadius: "1rem",
+                                height: "45px",
+                                mx: 1
+                            }}
+                            placeholder='Type your search here'
+                            label='Search'
+                        />
+                        <IconButton>
+                            <FilterList />
+                        </IconButton>
+                    </Stack>
+
+                    <Contact />
+                </Stack>
+            </Box>
         )
     }
 
@@ -401,7 +515,9 @@ class Client extends React.Component<indexProps, indexState> {
 
     ProfileTab = () => {
         return (
-            <Stack>
+            <Stack
+                sx={[addShadow, { p: "1rem", borderRadius: "1rem" }]}
+            >
 
                 <Typography
                     variant="subtitle2"
@@ -454,45 +570,45 @@ class Client extends React.Component<indexProps, indexState> {
 
         return (
             <Stack gap={1} >
-
-                {
-                    notes?.notes?.edges?.map(
-                        (note, index) => {
-                            return (
-                                <Stack
-                                    key={note?.node?.id}
-                                    gap={1}
-                                    p={1}
-                                    sx={[addShadow, {
-                                        borderRadius: "0.5rem",
-                                        boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                                        my: "0.5rem"
-                                    }]}
-                                >
-                                    <Typography variant="h6" >
-                                        Title : {note?.node?.title ?? " - "}
-                                    </Typography>
-
-                                    <Typography variant='body1' >
-                                        Note : {note?.node?.content ?? " - "}
-                                    </Typography>
-
-                                    <Stack gap={1} justifyContent="space-between" >
-                                        <Typography variant="caption" fontSize="0.33rem" >
-                                            last Updated : {new Date(note?.node?.lastUpdated).toLocaleString()}
-                                        </Typography>
-                                        <Typography variant="caption" fontSize="0.33rem" >
-                                            created At : {new Date(note?.node?.createdAt).toLocaleString()}
-                                        </Typography>
-                                    </Stack>
-
-                                </Stack>
-                            )
-                        })
-                }
-
                 <NoteMod />
+                {
+                    notes
+                        ?.notes
+                        ?.edges
+                        ?.map(
+                            (note, index) => {
+                                return (
+                                    <Stack
+                                        key={note?.node?.id}
+                                        gap={1}
+                                        p={1}
+                                        sx={[addShadow, {
+                                            borderRadius: "0.5rem",
+                                            boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                                            my: "0.5rem"
+                                        }]}
+                                    >
+                                        <Typography variant="h6" >
+                                            Title : {note?.node?.title ?? " - "}
+                                        </Typography>
 
+                                        <Typography variant='body1' >
+                                            Note : {note?.node?.content ?? " - "}
+                                        </Typography>
+
+                                        <Stack gap={1} justifyContent="space-between" >
+                                            <Typography variant="caption" fontSize="0.33rem" >
+                                                last Updated : {new Date(note?.node?.lastUpdated).toLocaleString()}
+                                            </Typography>
+                                            <Typography variant="caption" fontSize="0.33rem" >
+                                                created At : {new Date(note?.node?.createdAt).toLocaleString()}
+                                            </Typography>
+                                        </Stack>
+
+                                    </Stack>
+                                )
+                            })
+                }
             </Stack>
         )
     }
@@ -538,7 +654,7 @@ class Client extends React.Component<indexProps, indexState> {
     }
 
     ProfileTabs = () => {
-        const [value, setValue] = React.useState(3);
+        const [value, setValue] = React.useState(0);
         const { ProfileTab, WorkHistoryTab, ContactTab, NoteTab } = this;
         const { selectedNode } = this.state;
         const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -589,7 +705,7 @@ class Client extends React.Component<indexProps, indexState> {
                     </Tabs>
                 </AppBar>
 
-                <TabPanel sx={[addShadow]} value={value} index={0} >
+                <TabPanel value={value} index={0} >
                     <ProfileTab />
                 </TabPanel>
                 <TabPanel value={value} index={1} >
@@ -630,7 +746,7 @@ class Client extends React.Component<indexProps, indexState> {
     }
 
     render() {
-        const { Header, Body, SideBar, SideBarContainer } = this;
+        const { Header, Body, SideBar, SideBarContainer, SideBarToggleButton, SearchPanel } = this;
 
         return (
             <RelayEnvironmentProvider environment={connections} >
@@ -638,14 +754,14 @@ class Client extends React.Component<indexProps, indexState> {
                     sx={{
                         width: "100vw",
                         height: "100vh",
-                        p: 0,
                         bgcolor: 'background.paper',
                         overflowX: "hidden",
                         overflowY: "scroll",
                         display: "grid",
                         gridTemplateColumns: {
                             xs: "1fr",
-                            md: "360px 1fr"
+                            md: "1fr 2fr",
+                            lg: "1fr 2fr 1fr"
                         },
 
                         "&::-webkit-scrollbar": {
@@ -654,8 +770,10 @@ class Client extends React.Component<indexProps, indexState> {
                     }}
                 >
 
+                    <SideBarToggleButton />
+
                     <SideBarContainer>
-                        <React.Suspense fallback="looadding...." >
+                        <React.Suspense fallback="loading...." >
                             <SideBar />
                         </React.Suspense>
                     </SideBarContainer>
@@ -663,10 +781,27 @@ class Client extends React.Component<indexProps, indexState> {
                     <Stack
                         flex={1}
                         pb={2}
+                        sx={{
+                            overflowY: "scroll",
+                            overflowX: "hidden",
+                            flex: 1,
+                            height: "100vh",
+                            pt: {
+                                xs: "3rem",
+                                md: "1rem"
+                            },
+                            pb: "3rem",
+                            "&::-webkit-scrollbar": {
+                                display: "none"
+                            }
+                        }}
                     >
+
                         <Header />
                         <Body />
                     </Stack>
+
+                    <SearchPanel />
 
                 </Box>
             </RelayEnvironmentProvider>

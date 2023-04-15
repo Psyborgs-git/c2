@@ -391,7 +391,31 @@ type Query {
 		last: Int
 		name_Icontains: String
 	): GroupConnection
+	userNotes(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		title_Icontains: String
+		content_Icontains: String
+		contact_Name_Icontains: String
+		contact_CurrentPosition_Icontains: String
+		contact_Company_Icontains: String
+		lastUpdated_Gte: DateTime
+		lastUpdated_Lte: DateTime
+		createdAt_Gte: DateTime
+		createdAt_Lte: DateTime
+	): NoteConnection
 	connection: Connection
+	groups(
+		offset: Int
+		before: String
+		after: String
+		first: Int
+		last: Int
+		name_Icontains: String
+	): GroupConnection
 	contacts(
 		offset: Int
 		before: String

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<6a90df4df674b7dd30a227fa3db63ceb>>
+ * @generated SignedSource<<db76f43b14b54b6350a5f6a88de8422a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -41,6 +41,31 @@ export type ClientQuery$data = {
     readonly id: string;
     readonly userIsOwner: boolean | null;
   } | null;
+  readonly groups: {
+    readonly edges: ReadonlyArray<{
+      readonly node: {
+        readonly contacts: {
+          readonly edges: ReadonlyArray<{
+            readonly node: {
+              readonly emails: ReadonlyArray<string | null> | null;
+              readonly id: string;
+              readonly mobile: {
+                readonly edges: ReadonlyArray<{
+                  readonly node: {
+                    readonly countryCode: string;
+                    readonly id: string;
+                    readonly number: string;
+                  } | null;
+                } | null>;
+              };
+              readonly name: string | null;
+            } | null;
+          } | null>;
+        };
+        readonly id: string;
+      } | null;
+    } | null>;
+  } | null;
 };
 export type ClientQuery = {
   response: ClientQuery$data;
@@ -62,7 +87,134 @@ v1 = {
   "name": "name",
   "storageKey": null
 },
-v2 = [
+v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "countryCode",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "number",
+  "storageKey": null
+},
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "emails",
+  "storageKey": null
+},
+v5 = [
+  {
+    "alias": null,
+    "args": null,
+    "concreteType": "GroupConnection",
+    "kind": "LinkedField",
+    "name": "groups",
+    "plural": false,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "GroupEdge",
+        "kind": "LinkedField",
+        "name": "edges",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Group",
+            "kind": "LinkedField",
+            "name": "node",
+            "plural": false,
+            "selections": [
+              (v0/*: any*/),
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "DetailsConnection",
+                "kind": "LinkedField",
+                "name": "contacts",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "DetailsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Details",
+                        "kind": "LinkedField",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          (v0/*: any*/),
+                          (v1/*: any*/),
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "MobileNumberConnection",
+                            "kind": "LinkedField",
+                            "name": "mobile",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "concreteType": "MobileNumberEdge",
+                                "kind": "LinkedField",
+                                "name": "edges",
+                                "plural": true,
+                                "selections": [
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "concreteType": "MobileNumber",
+                                    "kind": "LinkedField",
+                                    "name": "node",
+                                    "plural": false,
+                                    "selections": [
+                                      (v0/*: any*/),
+                                      (v2/*: any*/),
+                                      (v3/*: any*/)
+                                    ],
+                                    "storageKey": null
+                                  }
+                                ],
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          },
+                          (v4/*: any*/)
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
+  },
   {
     "alias": null,
     "args": null,
@@ -125,13 +277,7 @@ v2 = [
                     "name": "description",
                     "storageKey": null
                   },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "emails",
-                    "storageKey": null
-                  },
+                  (v4/*: any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -178,20 +324,8 @@ v2 = [
                             "plural": false,
                             "selections": [
                               (v0/*: any*/),
-                              {
-                                "alias": null,
-                                "args": null,
-                                "kind": "ScalarField",
-                                "name": "number",
-                                "storageKey": null
-                              },
-                              {
-                                "alias": null,
-                                "args": null,
-                                "kind": "ScalarField",
-                                "name": "countryCode",
-                                "storageKey": null
-                              }
+                              (v3/*: any*/),
+                              (v2/*: any*/)
                             ],
                             "storageKey": null
                           }
@@ -220,7 +354,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientQuery",
-    "selections": (v2/*: any*/),
+    "selections": (v5/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -229,19 +363,19 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "ClientQuery",
-    "selections": (v2/*: any*/)
+    "selections": (v5/*: any*/)
   },
   "params": {
-    "cacheID": "fe671c29c8cd3c7b81478106f3f349ed",
+    "cacheID": "7028f91f5d55a91a845df0d78b38bb9c",
     "id": null,
     "metadata": {},
     "name": "ClientQuery",
     "operationKind": "query",
-    "text": "query ClientQuery {\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          id\n          name\n          description\n          emails\n          lastUpdated\n          currentPosition\n          company\n          mobile {\n            edges {\n              node {\n                id\n                number\n                countryCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query ClientQuery {\n  groups {\n    edges {\n      node {\n        id\n        contacts {\n          edges {\n            node {\n              id\n              name\n              mobile {\n                edges {\n                  node {\n                    id\n                    countryCode\n                    number\n                  }\n                }\n              }\n              emails\n            }\n          }\n        }\n      }\n    }\n  }\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          id\n          name\n          description\n          emails\n          lastUpdated\n          currentPosition\n          company\n          mobile {\n            edges {\n              node {\n                id\n                number\n                countryCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "46c6769e4b07171d6146501deeb4e781";
+(node as any).hash = "f79a8678cf6f07a307efaec510d8000b";
 
 export default node;

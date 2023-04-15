@@ -2,7 +2,7 @@
 import React from 'react';
 
 // icons
-import { NoteAdd } from '@mui/icons-material';
+import { Close, NoteAdd } from '@mui/icons-material';
 
 // material
 import { Button, CircularProgress, Collapse, IconButton, Input, Stack, Typography } from '@mui/material';
@@ -166,7 +166,7 @@ class NoteMod extends React.Component<NoteModProps, NoteModState> {
         const { openForm } = this.state;
 
         return (
-            <Stack gap={1} alignItems="center" >
+            <Stack gap={1} maxWidth="sm" >
 
                 <Collapse
                     sx={{
@@ -191,9 +191,18 @@ class NoteMod extends React.Component<NoteModProps, NoteModState> {
                         borderRadius: "50%",
                         height: "50px",
                         width: "50px",
-                        mt: 1
+                        mt: 1,
+                        transition: "transform 500ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
+                        mx: "auto",
+
+                        ...(
+                            openForm &&
+                            {
+                                transform: "rotate(180deg)",
+                            }
+                        )
                     }}
-                    children={<NoteAdd />}
+                    children={openForm ? <Close /> : <NoteAdd />}
                 />
 
             </Stack>
