@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<db76f43b14b54b6350a5f6a88de8422a>>
+ * @generated SignedSource<<bf35fcb736beda655d747810a534501c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -47,8 +47,12 @@ export type ClientQuery$data = {
         readonly contacts: {
           readonly edges: ReadonlyArray<{
             readonly node: {
+              readonly company: string | null;
+              readonly currentPosition: string | null;
+              readonly description: string | null;
               readonly emails: ReadonlyArray<string | null> | null;
               readonly id: string;
+              readonly lastUpdated: any;
               readonly mobile: {
                 readonly edges: ReadonlyArray<{
                   readonly node: {
@@ -63,6 +67,7 @@ export type ClientQuery$data = {
           } | null>;
         };
         readonly id: string;
+        readonly name: string;
       } | null;
     } | null>;
   } | null;
@@ -90,25 +95,122 @@ v1 = {
 v2 = {
   "alias": null,
   "args": null,
-  "kind": "ScalarField",
-  "name": "countryCode",
+  "concreteType": "DetailsConnection",
+  "kind": "LinkedField",
+  "name": "contacts",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "DetailsEdge",
+      "kind": "LinkedField",
+      "name": "edges",
+      "plural": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "Details",
+          "kind": "LinkedField",
+          "name": "node",
+          "plural": false,
+          "selections": [
+            (v0/*: any*/),
+            (v1/*: any*/),
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "description",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "emails",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "lastUpdated",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "currentPosition",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "company",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "MobileNumberConnection",
+              "kind": "LinkedField",
+              "name": "mobile",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "MobileNumberEdge",
+                  "kind": "LinkedField",
+                  "name": "edges",
+                  "plural": true,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": "MobileNumber",
+                      "kind": "LinkedField",
+                      "name": "node",
+                      "plural": false,
+                      "selections": [
+                        (v0/*: any*/),
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "number",
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "countryCode",
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
   "storageKey": null
 },
-v3 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "number",
-  "storageKey": null
-},
-v4 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "emails",
-  "storageKey": null
-},
-v5 = [
+v3 = [
   {
     "alias": null,
     "args": null,
@@ -134,78 +236,8 @@ v5 = [
             "plural": false,
             "selections": [
               (v0/*: any*/),
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "DetailsConnection",
-                "kind": "LinkedField",
-                "name": "contacts",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "DetailsEdge",
-                    "kind": "LinkedField",
-                    "name": "edges",
-                    "plural": true,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "Details",
-                        "kind": "LinkedField",
-                        "name": "node",
-                        "plural": false,
-                        "selections": [
-                          (v0/*: any*/),
-                          (v1/*: any*/),
-                          {
-                            "alias": null,
-                            "args": null,
-                            "concreteType": "MobileNumberConnection",
-                            "kind": "LinkedField",
-                            "name": "mobile",
-                            "plural": false,
-                            "selections": [
-                              {
-                                "alias": null,
-                                "args": null,
-                                "concreteType": "MobileNumberEdge",
-                                "kind": "LinkedField",
-                                "name": "edges",
-                                "plural": true,
-                                "selections": [
-                                  {
-                                    "alias": null,
-                                    "args": null,
-                                    "concreteType": "MobileNumber",
-                                    "kind": "LinkedField",
-                                    "name": "node",
-                                    "plural": false,
-                                    "selections": [
-                                      (v0/*: any*/),
-                                      (v2/*: any*/),
-                                      (v3/*: any*/)
-                                    ],
-                                    "storageKey": null
-                                  }
-                                ],
-                                "storageKey": null
-                              }
-                            ],
-                            "storageKey": null
-                          },
-                          (v4/*: any*/)
-                        ],
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
+              (v1/*: any*/),
+              (v2/*: any*/)
             ],
             "storageKey": null
           }
@@ -244,106 +276,7 @@ v5 = [
         ],
         "storageKey": null
       },
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "DetailsConnection",
-        "kind": "LinkedField",
-        "name": "contacts",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "DetailsEdge",
-            "kind": "LinkedField",
-            "name": "edges",
-            "plural": true,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "Details",
-                "kind": "LinkedField",
-                "name": "node",
-                "plural": false,
-                "selections": [
-                  (v0/*: any*/),
-                  (v1/*: any*/),
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "description",
-                    "storageKey": null
-                  },
-                  (v4/*: any*/),
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "lastUpdated",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "currentPosition",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "company",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "MobileNumberConnection",
-                    "kind": "LinkedField",
-                    "name": "mobile",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "MobileNumberEdge",
-                        "kind": "LinkedField",
-                        "name": "edges",
-                        "plural": true,
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "concreteType": "MobileNumber",
-                            "kind": "LinkedField",
-                            "name": "node",
-                            "plural": false,
-                            "selections": [
-                              (v0/*: any*/),
-                              (v3/*: any*/),
-                              (v2/*: any*/)
-                            ],
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
+      (v2/*: any*/)
     ],
     "storageKey": null
   }
@@ -354,7 +287,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientQuery",
-    "selections": (v5/*: any*/),
+    "selections": (v3/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -363,19 +296,19 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "ClientQuery",
-    "selections": (v5/*: any*/)
+    "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "7028f91f5d55a91a845df0d78b38bb9c",
+    "cacheID": "26a8f2525115d9314e47cc96107c3cde",
     "id": null,
     "metadata": {},
     "name": "ClientQuery",
     "operationKind": "query",
-    "text": "query ClientQuery {\n  groups {\n    edges {\n      node {\n        id\n        contacts {\n          edges {\n            node {\n              id\n              name\n              mobile {\n                edges {\n                  node {\n                    id\n                    countryCode\n                    number\n                  }\n                }\n              }\n              emails\n            }\n          }\n        }\n      }\n    }\n  }\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          id\n          name\n          description\n          emails\n          lastUpdated\n          currentPosition\n          company\n          mobile {\n            edges {\n              node {\n                id\n                number\n                countryCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query ClientQuery {\n  groups {\n    edges {\n      node {\n        id\n        name\n        contacts {\n          edges {\n            node {\n              id\n              name\n              description\n              emails\n              lastUpdated\n              currentPosition\n              company\n              mobile {\n                edges {\n                  node {\n                    id\n                    number\n                    countryCode\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          id\n          name\n          description\n          emails\n          lastUpdated\n          currentPosition\n          company\n          mobile {\n            edges {\n              node {\n                id\n                number\n                countryCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "f79a8678cf6f07a307efaec510d8000b";
+(node as any).hash = "441f95dc0d6ea63d179b9abc978d8ea6";
 
 export default node;

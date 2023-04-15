@@ -5,7 +5,7 @@ import React from 'react';
 import { Close, NoteAdd } from '@mui/icons-material';
 
 // material
-import { Button, CircularProgress, Collapse, IconButton, Input, Stack, Typography } from '@mui/material';
+import { Button, CircularProgress, Collapse, IconButton, Stack, TextField, Typography } from '@mui/material';
 
 // relay
 import { useMutation } from 'react-relay';
@@ -123,14 +123,18 @@ class NoteMod extends React.Component<NoteModProps, NoteModState> {
                     />
                 </Stack>
 
-                <Input
+                <TextField
                     placeholder="Title"
+                    label="Title"
+                    variant="standard"
                     inputProps={{ 'aria-label': 'Title' }}
                     onChange={(e) => setTitle(e.target.value)}
                     value={title}
                 />
-                <Input
+                <TextField
                     placeholder="Content"
+                    label="Content"
+                    variant="standard"
                     inputProps={{ 'aria-label': 'Content' }}
                     onChange={(e) => setContent(e.target.value)}
                     value={content}

@@ -4,7 +4,7 @@ import React from 'react';
 import { AppBar, Avatar, Box, BoxProps, Button, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemText, Skeleton, Stack, Tab, Tabs, TextField, Typography, keyframes } from '@mui/material';
 
 // Icons
-import { Call, Close, Email, FilterList, Menu, Search } from '@mui/icons-material';
+import { Add, Call, Close, Email, FilterList, Menu, Search } from '@mui/icons-material';
 
 // Relay
 import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
@@ -43,6 +43,8 @@ interface indexState {
     selectedNode?: string;
     searchOpen?: boolean;
     search?: string;
+    selectedGroup?: string;
+    groupContacts?: { edges: Array<{ node: any }> };
 }
 
 const tabAnimation = keyframes`
@@ -65,6 +67,16 @@ const sideBarAnimation = keyframes`
         transform : translateY(0%);
         opacity: 1;
         scale: 1;
+    }
+`;
+const searchPanelAnimation = keyframes`
+    0% {
+        transform : translateX(100%);
+        opacity: 0.3;
+    }
+    100% {  
+        transform : translateX(0%);
+        opacity: 1;
     }
 `;
 
@@ -95,6 +107,7 @@ function TabPanel(props: TabPanelProps) {
                 minHeight: "200px",
                 bgcolor: "background.paper",
                 borderRadius: "1rem",
+                mb: "6rem"
             },
             ...(Array.isArray(sx) ? sx : [sx])
             ]}
@@ -138,70 +151,10 @@ class Client extends React.Component<indexProps, indexState> {
     _toggleSearchbar = () => {
         this.setState({ searchOpen: !this.state.searchOpen });
     }
-
-    Header = () => {
-        return null;
-    }
-
-    SideBarToggleButton = () => {
-        const { sidebarOpen, searchOpen } = this.state;
-        return (
-            <Box sx={{
-                position: "absolute",
-                top: "10px",
-                left: "0",
-                right: "0",
-                width: "100vw",
-                zIndex: 99,
-                justifyContent: "space-between",
-                flexDirection: "row",
-                p: 1,
-                display: {
-                    xs: "flex",
-                    md: "none"
-                },
-            }}>
-                <IconButton
-                    onClick={this._toggleSidebar}
-                    sx={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                        backdropFilter: "blur(9px)",
-                        bgcolor: "background.backdrop",
-                        color: "text.primary",
-                        boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                    }}
-                >
-                    {sidebarOpen ? <Close /> : <Menu />}
-                </IconButton>
-
-                <Box flex={1}>
-
-                </Box>
-
-                <IconButton
-                    onClick={this._toggleSearchbar}
-                    sx={{
-                        width: "40px",
-                        height: "40px",
-                        borderRadius: "50%",
-                        backdropFilter: "blur(9px)",
-                        bgcolor: "background.backdrop",
-                        color: "text.primary",
-                        boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                    }}
-                >
-                    {searchOpen ? <Close /> : <Search />}
-                </IconButton>
-            </Box>
-        )
-    }
-
     _onContactClick = (contact: any) => {
         this.setState({
             name: contact?.name,
-            description: contact?.description,
+            description: contact?.description ?? "",
             sidebarOpen: false,
             emails: contact?.emails,
             mobile: contact?.mobile?.edges?.map((edge: any) => edge?.node),
@@ -212,7 +165,6 @@ class Client extends React.Component<indexProps, indexState> {
         })
 
     }
-
     _render_contact = (contact: any, index: number) => {
         const { _onContactClick } = this;
 
@@ -248,6 +200,96 @@ class Client extends React.Component<indexProps, indexState> {
             </ListItem>
         )
     }
+    _onSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        this.setState({
+            search: event.target.value
+        })
+    }
+    _onGroupClick = (group: any) => {
+        this.setState({
+            selectedGroup: group?.node?.id,
+            groupContacts: group?.node?.contacts
+        })
+    }
+
+    Header = () => {
+        return (
+            <Box
+                sx={{
+                    height: "100px",
+                    width: "100%",
+
+                }}
+            >
+
+            </Box>
+        );
+    }
+
+    HeaderButtons = () => {
+        const { sidebarOpen, searchOpen } = this.state;
+        return (
+            <Box sx={{
+                position: "absolute",
+                top: "10px",
+                left: "0",
+                right: "0",
+                width: "100vw",
+                zIndex: 99,
+                justifyContent: "space-between",
+                flexDirection: "row",
+                p: 1,
+                display: {
+                    xs: "flex",
+                    md: "none"
+                },
+            }}>
+
+                {
+                    (!searchOpen) && (
+                        <IconButton
+                            onClick={this._toggleSidebar}
+                            sx={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                backdropFilter: "blur(9px)",
+                                bgcolor: "background.backdrop",
+                                color: "text.primary",
+                                boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                            }}
+                        >
+                            {sidebarOpen ? <Close /> : <Menu />}
+                        </IconButton>
+                    )
+                }
+
+                <Box flex={1}>
+
+                </Box>
+
+                {
+                    (!sidebarOpen) && (
+                        <IconButton
+                            onClick={this._toggleSearchbar}
+                            sx={{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                backdropFilter: "blur(9px)",
+                                bgcolor: "background.backdrop",
+                                color: "text.primary",
+                                boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                            }}
+                        >
+                            {searchOpen ? <Close /> : <Search />}
+                        </IconButton>
+                    )
+                }
+
+            </Box>
+        )
+    }
 
     SideBar = () => {
         const data = useLazyLoadQuery<ClientQuery>(
@@ -257,21 +299,26 @@ class Client extends React.Component<indexProps, indexState> {
                         edges {
                             node {
                                 id
+                                name
                                 contacts {
                                     edges {
                                         node {
                                             id
                                             name
+                                            description
+                                            emails
+                                            lastUpdated
+                                            currentPosition
+                                            company
                                             mobile {
                                                 edges {
                                                     node {
                                                         id
-                                                        countryCode
                                                         number
+                                                        countryCode
                                                     }
                                                 }
                                             }
-                                            emails
                                         }
                                     }
                                 }
@@ -314,7 +361,7 @@ class Client extends React.Component<indexProps, indexState> {
             { fetchPolicy: "store-or-network" }
         );
         const { _render_contact } = this;
-
+        const { groupContacts, selectedGroup } = this.state;
 
         return (
             <Stack sx={{ py: 2, height: "100vh", display: "block" }}>
@@ -327,12 +374,76 @@ class Client extends React.Component<indexProps, indexState> {
 
                 <Divider sx={{ margin: "10px 0px" }} />
 
+
+                {/* groups */}
+                <Stack >
+                    <Typography sx={{ textAlign: "center" }} variant="overline" gutterBottom> Groups </Typography>
+                    <Box sx={{ width: "100%", height: "70px", overflowX: "scroll", overflowY: "hidden" }}>
+                        <Stack
+                            direction="row"
+                            gap={1}
+                            sx={{ p: "1rem", flex: 1 }}
+                        >
+                            <IconButton>
+                                <Add />
+                            </IconButton>
+
+                            {
+                                data?.groups?.edges?.map(
+                                    (group, index) => {
+                                        return (
+                                            <Button
+                                                key={group?.node?.id}
+                                                sx={[
+                                                    addShadow,
+                                                    {
+                                                        borderRadius: "1rem",
+                                                        p: 1,
+                                                        bgcolor: "background.paper",
+                                                        width: "max-content",
+                                                        color: "text.primary",
+                                                        "&:hover": {
+                                                            bgcolor: "background.backdrop",
+                                                            color: "text.main",
+                                                        },
+                                                        ...(
+                                                            (selectedGroup === group?.node?.id) && {
+                                                                border: "1px solid",
+                                                                borderColor: "primary.main"
+                                                            }
+                                                        )
+                                                    }
+                                                ]}
+                                                onClick={() => this._onGroupClick(group)}
+                                            >
+                                                <Typography >
+                                                    {group?.node?.name}
+                                                </Typography>
+                                            </Button>
+                                        )
+                                    }
+                                )
+                            }
+                        </Stack>
+
+                    </Box>
+                </Stack >
+                {/*  */}
+
+
+                < Divider sx={{ margin: "10px 6px" }
+                } />
+
+                {/* contacts list */}
                 <List
                     sx={{ p: "1rem", flex: 1 }}
-                    children={data?.connection?.contacts?.edges?.map(_render_contact)}
+                    children={
+                        (selectedGroup ? groupContacts : data?.connection?.contacts)?.edges?.map(_render_contact)
+                    }
                 />
+                {/*  */}
 
-            </Stack>
+            </Stack >
         )
     }
 
@@ -376,7 +487,7 @@ class Client extends React.Component<indexProps, indexState> {
     }
 
     SearchPanel = () => {
-
+        const { searchOpen, search } = this.state;
 
         return (
             <Box
@@ -385,6 +496,7 @@ class Client extends React.Component<indexProps, indexState> {
                     ({
                         bgcolor: "backgroud.paper",
                         height: "100vh",
+                        minWidth: "sm",
                         overflowY: "scroll",
                         overflowX: "hidden",
                         p: 1,
@@ -393,7 +505,19 @@ class Client extends React.Component<indexProps, indexState> {
                             md: 1
                         },
                         [theme.breakpoints.down("md")]: {
-
+                            display: "none",
+                            ...(searchOpen && {
+                                display: "block",
+                                position: "absolute",
+                                top: 0,
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                zIndex: 2,
+                                backdropFilter: "blur(9px)",
+                                animation: `${searchPanelAnimation} 500ms ease-in-out ${this.state.searchOpen ? "both" : "reverse"}`,
+                                pt: "72px"
+                            })
                         },
                         [theme.breakpoints.up("md")]: {
                             display: "flex",
@@ -402,9 +526,9 @@ class Client extends React.Component<indexProps, indexState> {
                     })
                 }
             >
-                <Stack gap={1} >
+                <Stack width={"100%"} gap={1} p={1} alignItems="center" >
 
-                    <Stack direction='row' mb={2} position="sticky" >
+                    <Stack width={"100%"} maxWidth="sm" direction='row' mb={2} position="sticky" >
                         <TextField
                             sx={{
                                 flex: 1,
@@ -414,6 +538,8 @@ class Client extends React.Component<indexProps, indexState> {
                             }}
                             placeholder='Type your search here'
                             label='Search'
+                            value={search}
+                            onChange={this._onSearchChange}
                         />
                         <IconButton>
                             <FilterList />
@@ -621,12 +747,12 @@ class Client extends React.Component<indexProps, indexState> {
                     mobile?.map((m, index) => {
                         return (
                             <Stack direction="row" alignItems="center" >
-                                <IconButton color="success" >
+                                <IconButton color="success" sx={[addShadow]} >
                                     <Call />
                                 </IconButton>
                                 <Typography
                                     variant="caption"
-                                    sx={{ ml: "0.5rem" }}
+                                    sx={[{ ml: "0.5rem" }]}
                                     children={`${m?.countryCode} ${m?.number}`}
                                 />
                             </Stack>
@@ -637,12 +763,12 @@ class Client extends React.Component<indexProps, indexState> {
                     emails?.map((mail, index) => {
                         return (
                             <Stack direction="row" alignItems="center" >
-                                <IconButton color="info" >
+                                <IconButton color="info" sx={[addShadow]}>
                                     <Email />
                                 </IconButton>
                                 <Typography
                                     variant="caption"
-                                    sx={{ ml: "0.5rem", flex: 1 }}
+                                    sx={[{ ml: "0.5rem" }]}
                                     children={mail}
                                 />
                             </Stack>
@@ -746,7 +872,7 @@ class Client extends React.Component<indexProps, indexState> {
     }
 
     render() {
-        const { Header, Body, SideBar, SideBarContainer, SideBarToggleButton, SearchPanel } = this;
+        const { Header, Body, SideBar, SideBarContainer, HeaderButtons, SearchPanel } = this;
 
         return (
             <RelayEnvironmentProvider environment={connections} >
@@ -760,8 +886,8 @@ class Client extends React.Component<indexProps, indexState> {
                         display: "grid",
                         gridTemplateColumns: {
                             xs: "1fr",
-                            md: "1fr 2fr",
-                            lg: "1fr 2fr 1fr"
+                            md: "1fr 2fr 1fr",
+                            lg: "1fr 3fr 2fr"
                         },
 
                         "&::-webkit-scrollbar": {
@@ -770,7 +896,7 @@ class Client extends React.Component<indexProps, indexState> {
                     }}
                 >
 
-                    <SideBarToggleButton />
+                    <HeaderButtons />
 
                     <SideBarContainer>
                         <React.Suspense fallback="loading...." >
@@ -790,7 +916,6 @@ class Client extends React.Component<indexProps, indexState> {
                                 xs: "3rem",
                                 md: "1rem"
                             },
-                            pb: "3rem",
                             "&::-webkit-scrollbar": {
                                 display: "none"
                             }

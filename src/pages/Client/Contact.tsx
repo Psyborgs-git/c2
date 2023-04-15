@@ -2,10 +2,10 @@ import React from 'react';
 
 
 // Material UI
-import { Button, Collapse, IconButton, Input, Stack } from '@mui/material';
+import { Button, Collapse, IconButton, Stack, TextField } from '@mui/material';
 
 // Icons
-import { Add, Email, Phone } from '@mui/icons-material';
+import { Add, Delete, Email, Phone } from '@mui/icons-material';
 
 // Relay
 import { useMutation } from 'react-relay';
@@ -51,8 +51,6 @@ function Contact(props: ContactProps) {
                 input,
             },
             onCompleted: (response, errors) => {
-                console.log(response);
-                console.log(errors);
 
                 if (response?.contact?.success) {
                     setInput({});
@@ -64,17 +62,6 @@ function Contact(props: ContactProps) {
             },
             onError: (error) => {
                 console.log(error);
-            },
-            updater: (store, data) => {
-                if (data?.contact?.success) {
-                    const x = store.getRoot();
-                    const connection = x.getLinkedRecord("connection");
-                    // @ts-ignore
-                    const newContact = store.get(data?.contact?.contact?.id);
-                    const clientContacts = connection?.getLinkedRecords('contacts');
-                    // @ts-ignore
-                    connection?.setLinkedRecords([...clientContacts, newContact], 'contacts');
-                }
             }
         })
     }
@@ -107,7 +94,8 @@ function Contact(props: ContactProps) {
                 color: 'primary.contrastText',
                 display: 'flex',
                 maxWidth: "sm",
-                my: 1
+                my: 1,
+                bgcolor: "transparent"
             }}
             gap={1}
         >
@@ -123,22 +111,56 @@ function Contact(props: ContactProps) {
                         display: "flex",
                         boxShadow: "0px 0px 10px 0px rgba(0,0,0,0.125)",
                         p: 2,
-                        backdropFilter: 'blur(9px)',
                         borderRadius: "9px",
+                        bgcolor: "background.paper",
                     }}
                 >
 
-                    <Input placeholder='Name' value={input.name} onChange={e => setInput({ ...input, name: e.target.value })} />
+                    <TextField
+                        placeholder='Name'
+                        label='Name'
+                        variant="filled"
+                        required
+                        value={input.name}
+                        onChange={e => setInput({ ...input, name: e.target.value })}
+                    />
                     <Stack direction="row" gap={1} justifyContent="space-between" >
-                        <Input
+                        <TextField
                             placeholder='Position'
+                            label='Position'
+                            variant="standard"
                             value={input?.currentPosition}
                             onChange={(e) => setInput({ ...input, currentPosition: e.target.value })}
                         />
-                        <Input
+                        <TextField
                             placeholder='Company'
+                            label='Company'
+                            variant="standard"
                             value={input?.company}
                             onChange={(e) => setInput({ ...input, company: e.target.value })}
+                        />
+                    </Stack>
+
+                    <Stack direction="row" gap={1} justifyContent="space-between" >
+                        <IconButton
+                            color="success"
+                            onClick={_add_number}
+                            children={
+                                <>
+                                    <Add />
+                                    <Phone />
+                                </>
+                            }
+                        />
+                        <IconButton
+                            color="info"
+                            onClick={_add_email}
+                            children={
+                                <>
+                                    <Add />
+                                    <Email />
+                                </>
+                            }
                         />
                     </Stack>
 
@@ -147,8 +169,9 @@ function Contact(props: ContactProps) {
                             input.numbers?.map(
                                 (number, index) => (
                                     <Stack key={index} direction="row" gap={1} justifyContent="space-between" >
-                                        <Input
+                                        <TextField
                                             placeholder='Country Code'
+                                            label='Country Code'
                                             value={number?.countryCode}
                                             defaultValue="+91"
                                             onChange={
@@ -160,8 +183,9 @@ function Contact(props: ContactProps) {
                                                 })
                                             }
                                         />
-                                        <Input
+                                        <TextField
                                             placeholder={`Number ${index + 1}`}
+                                            label={`Number ${index + 1}`}
                                             value={number?.number}
                                             onChange={
                                                 (e) => setInput({
@@ -172,6 +196,23 @@ function Contact(props: ContactProps) {
                                                 })
                                             }
                                         />
+                                        <IconButton
+                                            sx={{
+                                                color: 'error.main',
+                                                width: '45px',
+                                                height: '45px',
+                                                borderRadius: '50%',
+                                            }}
+                                            onClick={() => {
+                                                setInput({
+                                                    ...input,
+                                                    numbers: input.numbers?.filter(
+                                                        (number, i) => i !== index
+                                                    )
+                                                })
+                                            }} >
+                                            <Delete />
+                                        </IconButton>
                                     </Stack>
                                 ))
                         }
@@ -180,8 +221,9 @@ function Contact(props: ContactProps) {
                             input.emails?.map(
                                 (email, index) => (
                                     <Stack key={index} direction="row" gap={1} justifyContent="space-between" >
-                                        <Input
+                                        <TextField
                                             placeholder={`Email ${index + 1}`}
+                                            label={`Email ${index + 1}`}
                                             value={email}
                                             onChange={
                                                 (e) => setInput({
@@ -192,6 +234,24 @@ function Contact(props: ContactProps) {
                                                 })
                                             }
                                         />
+                                        <IconButton
+                                            sx={{
+                                                color: 'error.main',
+                                                width: '45px',
+                                                height: '45px',
+                                                borderRadius: '50%',
+                                            }}
+                                            onClick={() => {
+                                                setInput({
+                                                    ...input,
+                                                    emails: input.emails?.filter(
+                                                        (email, i) => i !== index
+                                                    )
+                                                })
+                                            }}
+                                        >
+                                            <Delete />
+                                        </IconButton>
                                     </Stack>
                                 )
                             )
@@ -207,14 +267,6 @@ function Contact(props: ContactProps) {
             </Collapse>
 
             <Stack direction="row" gap={1} alignItems="center" px={1} justifyContent="space-evenly" >
-                {open &&
-                    <IconButton
-                        color="success"
-                        onClick={_add_number}
-                        children={<Phone />}
-                    />
-                }
-
                 <IconButton
                     sx={{
                         mx: 'auto',
@@ -242,14 +294,6 @@ function Contact(props: ContactProps) {
                 >
                     <Add />
                 </IconButton>
-
-                {open &&
-                    <IconButton
-                        color="info"
-                        children={<Email />}
-                        onClick={_add_email}
-                    />
-                }
             </Stack>
 
         </Stack>
