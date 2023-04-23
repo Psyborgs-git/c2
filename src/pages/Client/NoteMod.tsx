@@ -29,7 +29,7 @@ class NoteMod extends React.Component<NoteModProps, NoteModState> {
     constructor(props: NoteModProps) {
         super(props);
         this.state = {
-            openForm: true,
+            openForm: false,
             contactId: props.id ?? "RGV0YWlsczpjZGEwYmRkNy1lOGZlLTQwZjUtOGY4NC1mYTlmZmFhMjUzMzg="
         };
     }

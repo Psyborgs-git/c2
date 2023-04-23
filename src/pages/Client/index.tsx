@@ -1,13 +1,18 @@
+// @ts-nocheck
 import React from 'react';
 
 // MUI
-import { AppBar, Avatar, Box, BoxProps, Button, Divider, IconButton, List, ListItem, ListItemAvatar, ListItemText, Skeleton, Stack, Tab, Tabs, TextField, Typography, keyframes } from '@mui/material';
+import {
+    AppBar, Autocomplete, Avatar, Box, BoxProps, Button, CircularProgress, Divider, IconButton, List, ListItem,
+    ListItemAvatar, ListItemText, Skeleton, Stack, Tab, Tabs, TextField,
+    Typography, createFilterOptions, keyframes
+} from '@mui/material';
 
 // Icons
-import { Add, Call, Close, Email, FilterList, Menu, Search } from '@mui/icons-material';
+import { Add, Call, Close, Done, Email, FilterList, Menu, Search } from '@mui/icons-material';
 
 // Relay
-import { RelayEnvironmentProvider, useLazyLoadQuery } from 'react-relay';
+import { RelayEnvironmentProvider, useFragment, useLazyLoadQuery, useMutation } from 'react-relay';
 
 // components
 import NoteMod from './NoteMod';
@@ -17,6 +22,9 @@ import Contact from './Contact';
 import { connections } from '../../relay/environment';
 import { ClientQuery } from './__generated__/ClientQuery.graphql';
 import { ClientContactNotesQuery } from './__generated__/ClientContactNotesQuery.graphql';
+import { ClientNewGroupMutation } from './__generated__/ClientNewGroupMutation.graphql';
+import { Client_contact$key } from './__generated__/Client_contact.graphql';
+import { ClientSearchPanelQuery, ClientSearchPanelQuery$data } from './__generated__/ClientSearchPanelQuery.graphql';
 
 // 
 const graphql = require('babel-plugin-relay/macro');
@@ -42,7 +50,7 @@ interface indexState {
     lastUpdated?: string;
     selectedNode?: string;
     searchOpen?: boolean;
-    search?: string;
+    search: string;
     selectedGroup?: string;
     groupContacts?: { edges: Array<{ node: any }> };
 }
@@ -79,6 +87,7 @@ const searchPanelAnimation = keyframes`
         opacity: 1;
     }
 `;
+
 
 
 function a11yProps(index: number) {
@@ -127,6 +136,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const addShadow = { boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)" };
+const filter = createFilterOptions<ClientSearchPanelQuery$data["contacts"]>();
 
 
 class Client extends React.Component<indexProps, indexState> {
@@ -134,14 +144,22 @@ class Client extends React.Component<indexProps, indexState> {
     constructor(props: indexProps) {
         super(props);
         this.state = {
-            sidebarOpen: true,
+            // display data
             name: "Jainam Shah",
             profession: "Founder | Developer",
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus. Sed euismod, nunc ut aliquam tincidunt, nunc nisl aliquam nisl, eget aliquam nunc nisl eu lectus.",
             company: "Shah Enterprises",
+
+            // selected node data
             selectedNode: undefined,
+
+            // rendering states
+            sidebarOpen: false,
             searchOpen: false,
+
+            // search params
             search: "",
+
         };
     }
 
@@ -156,6 +174,7 @@ class Client extends React.Component<indexProps, indexState> {
             name: contact?.name,
             description: contact?.description ?? "",
             sidebarOpen: false,
+            searchOpen: false,
             emails: contact?.emails,
             mobile: contact?.mobile?.edges?.map((edge: any) => edge?.node),
             lastUpdated: contact?.lastUpdated,
@@ -165,39 +184,13 @@ class Client extends React.Component<indexProps, indexState> {
         })
 
     }
-    _render_contact = (contact: any, index: number) => {
-        const { _onContactClick } = this;
-
+    _render_contact = (x: { node: Client_contact$key } & any, index: number) => {
+        const { RenderContact } = this;
         return (
-            <ListItem
-                key={contact?.node?.id}
-                sx={{
-                    borderRadius: "1rem",
-                    boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
-                    my: "0.5rem",
-                    "&:hover": {
-                        background: "linear-gradient(-90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
-                        color: "white"
-                    }
-                }}
-                button
-                onClick={() => _onContactClick(contact?.node)}
-            >
-
-                <ListItemAvatar>
-                    <Avatar >
-                        {contact?.node?.name?.charAt(0)}
-                    </Avatar>
-                </ListItemAvatar>
-
-                <ListItemText
-                    primary={contact?.node?.name}
-                    secondary={
-                        `${contact?.node?.emails?.length} emails | ${contact?.node?.mobile?.edges?.length} mobiles`
-                    }
-                />
-
-            </ListItem>
+            <RenderContact
+                node={x.node}
+                index={index}
+            />
         )
     }
     _onSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,6 +204,133 @@ class Client extends React.Component<indexProps, indexState> {
             groupContacts: group?.node?.contacts
         })
     }
+    _unselectGroup = () => {
+        this.setState({
+            selectedGroup: undefined,
+            groupContacts: undefined
+        })
+    }
+
+    RenderContact = ({ node, index }: { node: Client_contact$key, index: number }) => {
+        const { _onContactClick } = this;
+        const contact = useFragment(
+            graphql`
+                fragment Client_contact on Details {
+                    id
+                    name
+                    description
+                    emails
+                    lastUpdated
+                    currentPosition
+                    company
+                    mobile {
+                        edges {
+                            node {
+                                id
+                                number
+                                countryCode
+                            }
+                        }
+                    }
+                }
+            `,
+            node
+        )
+
+        return (
+            <ListItem
+                key={`${index}-${contact?.id}`}
+                sx={{
+                    borderRadius: "1rem",
+                    boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                    my: "0.5rem",
+                    bgcolor: "background.paper",
+                    "&:hover": {
+                        background: "linear-gradient(-90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(0,212,255,1) 100%)",
+                        color: "white"
+                    }
+                }}
+                button
+                onClick={() => _onContactClick(contact)}
+            >
+
+                <ListItemAvatar>
+                    <Avatar >
+                        {contact?.name?.charAt(0)}
+                    </Avatar>
+                </ListItemAvatar>
+
+                <ListItemText
+                    primary={contact?.name}
+                    secondary={
+                        `${contact?.emails?.length} emails |
+                         ${contact?.mobile?.edges?.length} mobiles`
+                    }
+                />
+
+            </ListItem>
+        )
+    }
+
+    NewGroup = () => {
+        const [commit, isInFlight] = useMutation<ClientNewGroupMutation>(graphql`
+            mutation ClientNewGroupMutation($input: GroupMutationInput!) {
+                group(input: $input) {
+                    success
+                    error
+                    group {
+                        id
+                        name
+                    }
+                }
+            }
+        `);
+        const [groupName, setGroupName] = React.useState<string>("");
+        const _submit = () => {
+            commit({
+                variables: {
+                    input: {
+                        "name": groupName,
+                    },
+                },
+                onCompleted: (response, errors) => {
+                    if (response?.group?.success) {
+                        setGroupName("");
+                    }
+                    else if (response?.group?.error) {
+                        alert(response?.group?.error);
+                    }
+                }
+            })
+        }
+
+        return (
+            <Stack alignSelf="center" direction="row" alignItems="center" justifyContent="center" gap={1} mx={2} my="auto" >
+                <TextField
+                    label="Group Name"
+                    variant="standard"
+                    sx={{
+                        width: "max-content",
+                        borderRadius: "1rem",
+                        height: "auto",
+                    }}
+                    value={groupName}
+                    onChange={(event) => setGroupName(event.target.value)}
+                />
+                <IconButton
+                    color={(groupName.length > 0) ? "success" : "info"}
+                    disabled={groupName.length < 1}
+                    onClick={_submit}
+                    sx={[addShadow]}
+                    children={
+                        isInFlight ?
+                            <CircularProgress size="1rem" /> :
+                            <Done />
+                    }
+                />
+            </Stack>
+        )
+    }
 
     Header = () => {
         return (
@@ -218,10 +338,8 @@ class Client extends React.Component<indexProps, indexState> {
                 sx={{
                     height: "100px",
                     width: "100%",
-
                 }}
             >
-
             </Box>
         );
     }
@@ -303,22 +421,7 @@ class Client extends React.Component<indexProps, indexState> {
                                 contacts {
                                     edges {
                                         node {
-                                            id
-                                            name
-                                            description
-                                            emails
-                                            lastUpdated
-                                            currentPosition
-                                            company
-                                            mobile {
-                                                edges {
-                                                    node {
-                                                        id
-                                                        number
-                                                        countryCode
-                                                    }
-                                                }
-                                            }
+                                            ...Client_contact
                                         }
                                     }
                                 }
@@ -335,22 +438,7 @@ class Client extends React.Component<indexProps, indexState> {
                         contacts {
                             edges {
                                 node {
-                                    id
-                                    name
-                                    description
-                                    emails
-                                    lastUpdated
-                                    currentPosition
-                                    company
-                                    mobile {
-                                        edges {
-                                            node {
-                                                id
-                                                number
-                                                countryCode
-                                            }
-                                        }
-                                    }
+                                    ...Client_contact
                                 }
                             }
                         }
@@ -360,8 +448,10 @@ class Client extends React.Component<indexProps, indexState> {
             {},
             { fetchPolicy: "store-or-network" }
         );
-        const { _render_contact } = this;
+        const { _render_contact, NewGroup } = this;
         const { groupContacts, selectedGroup } = this.state;
+        const [newGroupOpen, setNewGroupOpen] = React.useState<boolean>(false);
+        const _toggleNewGroup = () => setNewGroupOpen(!newGroupOpen);
 
         return (
             <Stack sx={{ py: 2, height: "100vh", display: "block" }}>
@@ -378,67 +468,91 @@ class Client extends React.Component<indexProps, indexState> {
                 {/* groups */}
                 <Stack >
                     <Typography sx={{ textAlign: "center" }} variant="overline" gutterBottom> Groups </Typography>
-                    <Box sx={{ width: "100%", height: "70px", overflowX: "scroll", overflowY: "hidden" }}>
+                    <Box
+                        sx={{ width: "100%", height: "70px", overflowX: "scroll", overflowY: "hidden", "&::-webkit-scrollbar": { display: "none" } }}>
                         <Stack
                             direction="row"
                             gap={1}
                             sx={{ p: "1rem", flex: 1 }}
+                            mx={3}
+                            alignItems="center"
                         >
-                            <IconButton>
-                                <Add />
-                            </IconButton>
 
-                            {
-                                data?.groups?.edges?.map(
-                                    (group, index) => {
-                                        return (
-                                            <Button
-                                                key={group?.node?.id}
-                                                sx={[
-                                                    addShadow,
-                                                    {
-                                                        borderRadius: "1rem",
-                                                        p: 1,
-                                                        bgcolor: "background.paper",
-                                                        width: "max-content",
-                                                        color: "text.primary",
-                                                        "&:hover": {
-                                                            bgcolor: "background.backdrop",
-                                                            color: "text.main",
-                                                        },
-                                                        ...(
-                                                            (selectedGroup === group?.node?.id) && {
-                                                                border: "1px solid",
-                                                                borderColor: "primary.main"
-                                                            }
-                                                        )
-                                                    }
-                                                ]}
-                                                onClick={() => this._onGroupClick(group)}
-                                            >
-                                                <Typography >
-                                                    {group?.node?.name}
-                                                </Typography>
-                                            </Button>
-                                        )
-                                    }
-                                )
-                            }
+                            <IconButton
+                                onClick={selectedGroup ? this._unselectGroup : _toggleNewGroup}
+                                sx={{
+                                    width: "40px",
+                                    height: "40px",
+                                    borderRadius: "50%",
+                                    backdropFilter: "blur(9px)",
+                                    bgcolor: "background.backdrop",
+                                    color: "text.primary",
+                                    boxShadow: "0 0 10px 0 rgba(0,0,0,0.2)",
+                                    transition: "transform 400ms ease-in-out",
+                                    ...(
+                                        (selectedGroup || newGroupOpen) && {
+                                            border: "1px solid",
+                                            color: "error.main",
+                                            transform: "rotate(180deg)"
+                                        }
+                                    )
+                                }}
+                                children={(selectedGroup || newGroupOpen) ? <Close /> : <Add />}
+                            />
+
+                            {newGroupOpen && <NewGroup />}
+
+                            {data?.groups?.edges?.map(
+                                (group, index) => {
+                                    const isSelected = selectedGroup === group?.node?.id
+                                    return (
+                                        <Button
+                                            key={group?.node?.id}
+                                            sx={[
+                                                addShadow,
+                                                {
+                                                    borderRadius: "1rem",
+                                                    p: 1,
+                                                    bgcolor: "background.paper",
+                                                    width: "max-content",
+                                                    color: "text.primary",
+                                                    "&:hover": {
+                                                        bgcolor: "background.backdrop",
+                                                        color: "text.main",
+                                                    },
+                                                    ...(
+                                                        (isSelected) && {
+                                                            border: "1px solid",
+                                                            borderColor: "primary.main"
+                                                        }
+                                                    )
+                                                }
+                                            ]}
+                                            onClick={() => this._onGroupClick(group)}
+                                        >
+                                            <Typography variant={isSelected ? "button" : "caption"} flex={1} >
+                                                {group?.node?.name}
+                                            </Typography>
+                                        </Button>
+                                    )
+                                }
+                            )}
+
                         </Stack>
-
                     </Box>
                 </Stack >
                 {/*  */}
 
 
-                < Divider sx={{ margin: "10px 6px" }
-                } />
+                <Divider sx={{ margin: "10px 6px" }} />
 
                 {/* contacts list */}
                 <List
                     sx={{ p: "1rem", flex: 1 }}
                     children={
-                        (selectedGroup ? groupContacts : data?.connection?.contacts)?.edges?.map(_render_contact)
+                        (selectedGroup ? groupContacts : data?.connection?.contacts)
+                            ?.edges
+                            ?.map(_render_contact)
                     }
                 />
                 {/*  */}
@@ -488,6 +602,26 @@ class Client extends React.Component<indexProps, indexState> {
 
     SearchPanel = () => {
         const { searchOpen, search } = this.state;
+        const { _render_contact } = this;
+        const data = useLazyLoadQuery<ClientSearchPanelQuery>(
+            graphql`
+                query ClientSearchPanelQuery {
+                    contacts {
+                        edges {
+                            node {
+                                id
+                                name
+                                ...Client_contact
+                            }
+                        }
+                    }
+                }
+            `,
+            {
+
+            },
+            { fetchPolicy: "store-and-network" }
+        );
 
         return (
             <Box
@@ -528,28 +662,93 @@ class Client extends React.Component<indexProps, indexState> {
             >
                 <Stack width={"100%"} gap={1} p={1} alignItems="center" >
 
-                    <Stack width={"100%"} maxWidth="sm" direction='row' mb={2} position="sticky" >
-                        <TextField
-                            sx={{
-                                flex: 1,
-                                borderRadius: "1rem",
-                                height: "45px",
-                                mx: 1
-                            }}
-                            placeholder='Type your search here'
-                            label='Search'
-                            value={search}
-                            onChange={this._onSearchChange}
+                    <Stack width={"100%"} maxWidth="sm" direction='row' mb={2} position="sticky" alignItems="center" >
+                        <Autocomplete
+                            multiple
+                            selectOnFocus
+                            clearOnBlur
+                            handleHomeEndKeys
+                            id="searchbar"
+                            sx={{ flex: 1, p: 1 }}
+                            value={[
+                                { node: { name: search } }
+                            ]}
+                            onChange={
+                                (event, newValue) => {
+                                    if (typeof newValue === 'string') {
+                                        return this.setState({
+                                            search: newValue,
+                                        });
+                                    }
+
+                                    if (newValue && newValue.inputValue) {
+                                        // Create a new value from the user input
+                                        return this.setState({
+                                            search: newValue.inputValue,
+                                        })
+                                    }
+                                    return this.setState({
+                                        search: newValue?.node?.name,
+                                    })
+                                }
+                            }
+                            filterOptions={
+                                (options, params) => {
+                                    const filtered = filter(options, params);
+
+                                    const { inputValue } = params;
+                                    // Suggest the creation of a new value
+                                    const isExisting = options.some((option) => inputValue === option?.node?.name);
+                                    if (inputValue !== '' && !isExisting) {
+                                        filtered.push({
+                                            inputValue,
+                                            title: `Add "${inputValue}"`,
+                                        });
+                                    }
+
+                                    return filtered;
+                                }
+                            }
+                            options={data?.contacts?.edges}
+                            getOptionLabel={(option) => option?.node?.name}
+                            filterSelectedOptions
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    placeholder='Type your search here'
+                                    label='Search'
+                                    variant="standard"
+                                    type="search"
+                                />
+                            )}
                         />
-                        <IconButton>
-                            <FilterList />
-                        </IconButton>
+                        <IconButton
+                            sx={[{
+                                width: "40px",
+                                height: "40px",
+                                borderRadius: "50%",
+                                ":hover": {
+                                    ...(addShadow)
+                                }
+                            }]}
+                            children={
+                                <FilterList />
+                            }
+                        />
                     </Stack>
 
                     <Contact />
+
+                    <List
+                        sx={{ p: "1rem", width: "100%", flex: 1 }}
+                        // @ts-ignore
+                        children={data?.contacts?.edges?.map(_render_contact)}
+                    />
+
                 </Stack>
             </Box>
-        )
+        );
+
     }
 
     ProfileInfo = () => {

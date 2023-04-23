@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bf35fcb736beda655d747810a534501c>>
+ * @generated SignedSource<<a6354a6ade4778e2f2e3bcd897cac1aa>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,6 +9,7 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
+import { FragmentRefs } from "relay-runtime";
 export type ClientQuery$variables = {};
 export type ClientQuery$data = {
   readonly connection: {
@@ -19,22 +20,7 @@ export type ClientQuery$data = {
     readonly contacts: {
       readonly edges: ReadonlyArray<{
         readonly node: {
-          readonly company: string | null;
-          readonly currentPosition: string | null;
-          readonly description: string | null;
-          readonly emails: ReadonlyArray<string | null> | null;
-          readonly id: string;
-          readonly lastUpdated: any;
-          readonly mobile: {
-            readonly edges: ReadonlyArray<{
-              readonly node: {
-                readonly countryCode: string;
-                readonly id: string;
-                readonly number: string;
-              } | null;
-            } | null>;
-          };
-          readonly name: string | null;
+          readonly " $fragmentSpreads": FragmentRefs<"Client_contact">;
         } | null;
       } | null>;
     };
@@ -47,22 +33,7 @@ export type ClientQuery$data = {
         readonly contacts: {
           readonly edges: ReadonlyArray<{
             readonly node: {
-              readonly company: string | null;
-              readonly currentPosition: string | null;
-              readonly description: string | null;
-              readonly emails: ReadonlyArray<string | null> | null;
-              readonly id: string;
-              readonly lastUpdated: any;
-              readonly mobile: {
-                readonly edges: ReadonlyArray<{
-                  readonly node: {
-                    readonly countryCode: string;
-                    readonly id: string;
-                    readonly number: string;
-                  } | null;
-                } | null>;
-              };
-              readonly name: string | null;
+              readonly " $fragmentSpreads": FragmentRefs<"Client_contact">;
             } | null;
           } | null>;
         };
@@ -93,6 +64,64 @@ v1 = {
   "storageKey": null
 },
 v2 = {
+  "alias": null,
+  "args": null,
+  "concreteType": "DetailsConnection",
+  "kind": "LinkedField",
+  "name": "contacts",
+  "plural": false,
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "DetailsEdge",
+      "kind": "LinkedField",
+      "name": "edges",
+      "plural": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "Details",
+          "kind": "LinkedField",
+          "name": "node",
+          "plural": false,
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "Client_contact"
+            }
+          ],
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "userIsOwner",
+  "storageKey": null
+},
+v4 = {
+  "alias": null,
+  "args": null,
+  "concreteType": "ApplicationType",
+  "kind": "LinkedField",
+  "name": "app",
+  "plural": false,
+  "selections": [
+    (v0/*: any*/),
+    (v1/*: any*/)
+  ],
+  "storageKey": null
+},
+v5 = {
   "alias": null,
   "args": null,
   "concreteType": "DetailsConnection",
@@ -209,85 +238,66 @@ v2 = {
     }
   ],
   "storageKey": null
-},
-v3 = [
-  {
-    "alias": null,
-    "args": null,
-    "concreteType": "GroupConnection",
-    "kind": "LinkedField",
-    "name": "groups",
-    "plural": false,
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "GroupEdge",
-        "kind": "LinkedField",
-        "name": "edges",
-        "plural": true,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "Group",
-            "kind": "LinkedField",
-            "name": "node",
-            "plural": false,
-            "selections": [
-              (v0/*: any*/),
-              (v1/*: any*/),
-              (v2/*: any*/)
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "storageKey": null
-  },
-  {
-    "alias": null,
-    "args": null,
-    "concreteType": "Connection",
-    "kind": "LinkedField",
-    "name": "connection",
-    "plural": false,
-    "selections": [
-      (v0/*: any*/),
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "userIsOwner",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "ApplicationType",
-        "kind": "LinkedField",
-        "name": "app",
-        "plural": false,
-        "selections": [
-          (v0/*: any*/),
-          (v1/*: any*/)
-        ],
-        "storageKey": null
-      },
-      (v2/*: any*/)
-    ],
-    "storageKey": null
-  }
-];
+};
 return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
     "name": "ClientQuery",
-    "selections": (v3/*: any*/),
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "GroupConnection",
+        "kind": "LinkedField",
+        "name": "groups",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "GroupEdge",
+            "kind": "LinkedField",
+            "name": "edges",
+            "plural": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "Group",
+                "kind": "LinkedField",
+                "name": "node",
+                "plural": false,
+                "selections": [
+                  (v0/*: any*/),
+                  (v1/*: any*/),
+                  (v2/*: any*/)
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Connection",
+        "kind": "LinkedField",
+        "name": "connection",
+        "plural": false,
+        "selections": [
+          (v0/*: any*/),
+          (v3/*: any*/),
+          (v4/*: any*/),
+          (v2/*: any*/)
+        ],
+        "storageKey": null
+      }
+    ],
     "type": "Query",
     "abstractKey": null
   },
@@ -296,19 +306,71 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "ClientQuery",
-    "selections": (v3/*: any*/)
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "GroupConnection",
+        "kind": "LinkedField",
+        "name": "groups",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "GroupEdge",
+            "kind": "LinkedField",
+            "name": "edges",
+            "plural": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "Group",
+                "kind": "LinkedField",
+                "name": "node",
+                "plural": false,
+                "selections": [
+                  (v0/*: any*/),
+                  (v1/*: any*/),
+                  (v5/*: any*/)
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Connection",
+        "kind": "LinkedField",
+        "name": "connection",
+        "plural": false,
+        "selections": [
+          (v0/*: any*/),
+          (v3/*: any*/),
+          (v4/*: any*/),
+          (v5/*: any*/)
+        ],
+        "storageKey": null
+      }
+    ]
   },
   "params": {
-    "cacheID": "26a8f2525115d9314e47cc96107c3cde",
+    "cacheID": "ede53fcec20db2f4008982a36b6e628e",
     "id": null,
     "metadata": {},
     "name": "ClientQuery",
     "operationKind": "query",
-    "text": "query ClientQuery {\n  groups {\n    edges {\n      node {\n        id\n        name\n        contacts {\n          edges {\n            node {\n              id\n              name\n              description\n              emails\n              lastUpdated\n              currentPosition\n              company\n              mobile {\n                edges {\n                  node {\n                    id\n                    number\n                    countryCode\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          id\n          name\n          description\n          emails\n          lastUpdated\n          currentPosition\n          company\n          mobile {\n            edges {\n              node {\n                id\n                number\n                countryCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query ClientQuery {\n  groups {\n    edges {\n      node {\n        id\n        name\n        contacts {\n          edges {\n            node {\n              ...Client_contact\n              id\n            }\n          }\n        }\n      }\n    }\n  }\n  connection {\n    id\n    userIsOwner\n    app {\n      id\n      name\n    }\n    contacts {\n      edges {\n        node {\n          ...Client_contact\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment Client_contact on Details {\n  id\n  name\n  description\n  emails\n  lastUpdated\n  currentPosition\n  company\n  mobile {\n    edges {\n      node {\n        id\n        number\n        countryCode\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "441f95dc0d6ea63d179b9abc978d8ea6";
+(node as any).hash = "81b2ee18c16a9db399c2af96e80b3f11";
 
 export default node;
